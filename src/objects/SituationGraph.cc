@@ -153,18 +153,21 @@ void SituationGraph::loadModel(const std::string &filename, SituationEvolution* 
     int index = 0;
 
     /*
-     * for building reachability index
+     * for constructing reachability index
      */
     set<long> vertices;
     set<edge_id> edges;
 
     /*
-     * Create situation nodes
+     * 1. Create situation graph (SG)
      */
     for (pt::ptree::value_type & layer : root.get_child("layers")) {
 
         std::map<long, SituationNode> layerMap;
 
+        /*
+         * 1.1 Construct SG nodes and edges
+         */
         for (pt::ptree::value_type & node : layer.second) {
 
             SituationNode situation;
@@ -184,6 +187,9 @@ void SituationGraph::loadModel(const std::string &filename, SituationEvolution* 
                 se->addInstance(id, type, SimTime(duration));
             }
 
+            /*
+             * 1.1.1 build cause-consequence relations
+             */
             if (!node.second.get_child("Predecessors").empty()) {
                 for (pt::ptree::value_type &pre : node.second.get_child(
                         "Predecessors")) {
@@ -213,6 +219,9 @@ void SituationGraph::loadModel(const std::string &filename, SituationEvolution* 
                 }
             }
 
+            /*
+             * 1.1.2 build parent-child relations
+             */
             if (!node.second.get_child("Children").empty()) {
                 for (pt::ptree::value_type & chd : node.second.get_child(
                         "Children")) {
@@ -249,8 +258,8 @@ void SituationGraph::loadModel(const std::string &filename, SituationEvolution* 
             layerMap[situation.id] = situation;
         }
 
-        /**
-         * Create situation graph layers
+        /*
+         * 1.2 Construct SG layers
          */
         DirectedGraph graph;
         for (auto m : layerMap) {
@@ -268,7 +277,7 @@ void SituationGraph::loadModel(const std::string &filename, SituationEvolution* 
     }
 
     /*
-     * Create reachability index
+     * 2. Create reachability index
      */
     buildReachabilityMatrix(vertices, edges);
 //    cout << "print reachability matrix" << endl;

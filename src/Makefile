@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for DTSynchronizer
 #
 # This file was generated with the command:
-#  opp_makemake -f --deep -IC:/omnetpp-6.0.3/include/omnetpp -ID:/Workspace/boost_1_86_0 -I../include -ID:/Workspace/dlib-19.24 -LC:/Users/sunni/Workspace/boost_1_86_0/libs
+#  opp_makemake -f --deep -IC:/omnetpp-6.0.3/include/omnetpp -ID:/Workspace/boost_1_86_0 -I../include -ID:/Workspace/dlib-19.24 -LD:/Workspace/boost_1_86_0/libs
 #
 
 # Name of target to be created (-o option)
@@ -25,7 +25,7 @@ INCLUDE_PATH = -IC:/omnetpp-6.0.3/include/omnetpp -ID:/Workspace/boost_1_86_0 -I
 EXTRA_OBJS =
 
 # Additional libraries (-L, -l options)
-LIBS = $(LDFLAG_LIBPATH)C:/Users/sunni/Workspace/boost_1_86_0/libs
+LIBS = $(LDFLAG_LIBPATH)D:/Workspace/boost_1_86_0/libs
 
 # Output directory
 PROJECT_OUTPUT_DIR = ../out
@@ -83,7 +83,7 @@ include $(CONFIGFILE)
 # Simulation kernel and user interface libraries
 OMNETPP_LIBS = $(OPPMAIN_LIB) $(USERIF_LIBS) $(KERNEL_LIBS) $(SYS_LIBS)
 ifneq ($(PLATFORM),win32)
-LIBS += -Wl,-rpath,$(abspath C:/Users/sunni/Workspace/boost_1_86_0/libs)
+LIBS += -Wl,-rpath,$(abspath D:/Workspace/boost_1_86_0/libs)
 endif
 
 COPTS = $(CFLAGS) $(IMPORT_DEFINES)  $(INCLUDE_PATH) -I$(OMNETPP_INCL_DIR)

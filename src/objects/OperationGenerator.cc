@@ -39,7 +39,12 @@ void OperationGenerator::cacheEvent(long eventId, bool toTrigger,
 
 queue<vector<VirtualOperation>> OperationGenerator::generateOperations(set<long> cycleTriggered) {
     /*
-     * Event merge: here is only an over-simplified implementation
+     * 1. Operation generation
+     */
+
+    /*
+     * 1.1. Event merge: here is only an over-simplified implementation,
+     * which may need to be implemented later (TODO)
      */
     map<long, OperationalEvent> mergedEvents;
     set<long> toRemoveFront;
@@ -57,17 +62,17 @@ queue<vector<VirtualOperation>> OperationGenerator::generateOperations(set<long>
         cout << "print eventQueues: " << endl;
         util::printComplexMap(eventQueues);
 
-    // to remove the first event from cache, which is supposed to be transmitted to simulator
+    // remove the first event from cache, which is supposed to be transmitted to simulator
     for(auto a : toRemoveFront){
         eventQueues[a].erase(eventQueues[a].begin());
     }
 
     /*
-     * TODO use cycleTriggered to generate events for sync failure, and add them to mergedEvents
+     * 1.2 TODO use cycleTriggered to generate events for sync failure, and add them to mergedEvents
      */
 
     /*
-     * Event sort
+     * 1.3 Convert event to operation
      */
     stack<map<long, VirtualOperation>> sorted;
     map<long, VirtualOperation> voMap;
@@ -80,6 +85,9 @@ queue<vector<VirtualOperation>> OperationGenerator::generateOperations(set<long>
     }
     sorted.push(voMap);
 
+    /*
+     * 2. Operation sort
+     */
     bool hasCause = false;
     do{
         hasCause = false;
@@ -130,7 +138,7 @@ queue<vector<VirtualOperation>> OperationGenerator::generateOperations(set<long>
 
 
     /*
-     * Divide events into different sets
+     * 3. Divide operations into different sets
      */
     queue<vector<VirtualOperation>> opSets;
     while(!sorted.empty()){

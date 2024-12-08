@@ -42,7 +42,7 @@ private:
     SituationReasoner sr;
     OperationGenerator sog;
     LatencyGenerator lg;
-    // <situation_ID, trigger_counter>
+    // <situation_ID, trigger_counter>, a buffer to cache observable situation triggering for implementing situation evolution scheduling
     std::map<long, int> bufferCounters;
 
 protected:

@@ -36,6 +36,7 @@ public:
     map<long, SituationNode> situationMap;
     typedef pair<long, long> edge_id;
     map<edge_id, SituationRelation> relationMap;
+    // For a n-layer SG graph, layers[n-1] is the bottom layer and layers[0] is the top layer
     vector<DirectedGraph> layers;
 private:
     void buildReachabilityMatrix(set<long>& vertices, set<edge_id>& edges);

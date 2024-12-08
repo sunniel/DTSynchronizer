@@ -34,7 +34,11 @@ std::set<long> SituationReasoner::reason(std::set<long> triggered,
 //    util::printSet(triggered);
 
     int numOfLayers = sg.modelHeight();
-    // trigger bottom layer situations
+
+    /*
+     * 1. Trigger bottom layer situations
+     */
+    // layers[numOfLayers-1] accesses the bottom layer; layers[0] accesses the top layer
     DirectedGraph g = sg.getLayer(numOfLayers - 1);
     std::vector<long> bottoms = g.topo_sort();
     for (auto bottom : bottoms) {
@@ -47,7 +51,11 @@ std::set<long> SituationReasoner::reason(std::set<long> triggered,
         }
     }
 
+    /*
+     * 2. Trigger upper-layer situations: an over-simplified version of the BP process
+     */
     for (int i = numOfLayers - 1; i > 0; i--) {
+        // layers[numOfLayers-1] access the bottom layer
         DirectedGraph g1 = sg.getLayer(i - 1);
         std::vector<long> uppers = g1.topo_sort();
         for (auto upper : uppers) {
@@ -69,7 +77,9 @@ std::set<long> SituationReasoner::reason(std::set<long> triggered,
         }
     }
 
-    // compute UNDETERMINED state
+    /*
+     * 3. Compute UNDETERMINED state
+     */
     for (int i = 0; i < sg.modelHeight(); i++) {
         DirectedGraph g = sg.getLayer(i);
         std::vector<long> sortedNodes = g.topo_sort();
@@ -90,12 +100,16 @@ std::set<long> SituationReasoner::reason(std::set<long> triggered,
         }
     }
 
-    // update refinement
+    /*
+     * 4. Update refinement
+     */
     BNInferenceEngine engine;
     engine.loadModel(sg);
     engine.reason(sg, instanceMap, current);
 
-    // get operational situations from the bottom layer
+    /*
+     * 5. Get operational situations to return
+     */
     for (auto bottom : bottoms) {
         SituationInstance &instance = instanceMap[bottom];
         if (instance.state == SituationInstance::TRIGGERED
@@ -104,7 +118,9 @@ std::set<long> SituationReasoner::reason(std::set<long> triggered,
         }
     }
 
-    // reset transient situations
+    /*
+     * 6. reset transient situations
+     */
     for (auto &si : instanceMap) {
         if (si.second.next_start + si.second.duration <= current) {
             si.second.state = SituationInstance::UNTRIGGERED;

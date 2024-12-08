@@ -81,6 +81,10 @@ void Synchronizer::handleMessage(cMessage *msg) {
         delete event;
     } else if (msg->isName(msg::SE_TIMEOUT)) {
 
+        /*
+         * Situation evolution cycle is reached
+         */
+
         simtime_t current = simTime();
 
         cout << endl << "current time slice: " << current << endl;
@@ -90,6 +94,9 @@ void Synchronizer::handleMessage(cMessage *msg) {
 //        cout << "print buffer counters: ";
 //        util::printMap(bufferCounters);
 
+        /*
+         * 1. Get triggered observable situations
+         */
         for (auto bufferCounter : bufferCounters) {
             if (bufferCounter.second > 0) {
                 triggered.insert(bufferCounter.first);
@@ -98,17 +105,23 @@ void Synchronizer::handleMessage(cMessage *msg) {
         }
 
         /*
-         * The reasoning result contains a list of triggered observable situations,
+         * 2. Situation inference
+         * The inference result contains a list of triggered observable situations,
          * which is supposed to tell SOG to generate the corresponding simulation events.
          */
         std::set<long> tOperations = sr.reason(triggered, current);
 
+        /*
+         * 3. Simulation operation generation
+         */
         std::queue<std::vector<VirtualOperation>> opSets = sog.generateOperations(
                 tOperations);
-
         cout << "Operation sets are: " << endl;
         util::printComplexQueue(opSets);
 
+        /*
+         * 4. Send operations to simulator
+         */
         while (!opSets.empty()) {
             std::vector<VirtualOperation> operations = opSets.front();
             for (auto op : operations) {

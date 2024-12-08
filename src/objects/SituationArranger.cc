@@ -27,7 +27,7 @@ vector<PhysicalOperation> SituationArranger::arrange(simtime_t current) {
     vector<PhysicalOperation> operations;
 
     /*
-     * Build a list of triggerable top-layer situations
+     * 1. Build a list of triggerable top-layer situations: A top-down approach to generate situations
      */
     set<long> triggerables;
     DirectedGraph top = sg.getLayer(0);
@@ -39,6 +39,7 @@ vector<PhysicalOperation> SituationArranger::arrange(simtime_t current) {
         if (s.causes.empty()) {
             triggerables.insert(si.id);
         } else {
+            // a top-layer situation is to be triggered only if its trigger count is less than all causes
             bool toTrigger = true;
             for (auto cause : s.causes) {
                 SituationInstance cs = instanceMap[cause];
@@ -54,11 +55,11 @@ vector<PhysicalOperation> SituationArranger::arrange(simtime_t current) {
     }
 
     /*
-     * build a list of triggerable operational situations
+     * 2. Build a list of triggerable operational situations
      */
     for (auto triggerable : triggerables) {
 
-        // top instance
+        // ti: top-layer instance
         SituationInstance &ti = instanceMap[triggerable];
 
         if (ti.state == SituationInstance::UNTRIGGERED) {
@@ -66,7 +67,10 @@ vector<PhysicalOperation> SituationArranger::arrange(simtime_t current) {
 
 //                cout << "trigger situation " << ti.id << endl;
 
+                // trigger a top-layer situation, if it is not triggered
                 ti.state = SituationInstance::TRIGGERED;
+
+                // trigger all related bottom-layer situations
                 vector<long> tBottoms = sg.getOperationalSitutions(triggerable);
                 for (auto tBottom : tBottoms) {
                     // bottom instance
@@ -76,15 +80,21 @@ vector<PhysicalOperation> SituationArranger::arrange(simtime_t current) {
                 }
             }
         } else {
+
             /*
-             * check whether all bottom situations have been triggered,
+             * Reset the top-layer situation's state, if all its bottom-layer evidences have been triggered
+             * and is situation life cycle has ended. Otherwise, the state of them are left unchanged
+             */
+
+            /*
+             * Check whether all bottom situations have been triggered,
              * which means they have experienced the transition from triggered
              * to untriggered.
              */
             bool allTriggered = true;
             vector<long> tBottoms = sg.getOperationalSitutions(triggerable);
             for (auto tBottom : tBottoms) {
-                // bottom instance
+                // bi: bottom-layer instance
                 SituationInstance &bi = instanceMap[tBottom];
                 if (bi.state == SituationInstance::TRIGGERED
                         || bi.counter <= ti.counter) {
@@ -95,8 +105,10 @@ vector<PhysicalOperation> SituationArranger::arrange(simtime_t current) {
 
             if (allTriggered && ti.next_start + ti.duration <= current) {
 
+                /*
+                 * Untrigger a top-layer situation and set its bottom-layer evidences non-triggerable
+                 */
 //                cout << "reset situation " << ti.id << endl;
-
                 ti.state = SituationInstance::UNTRIGGERED;
                 ti.counter++;
                 ti.next_start = current + ti.cycle;
@@ -105,10 +117,15 @@ vector<PhysicalOperation> SituationArranger::arrange(simtime_t current) {
                     tOpStiuations.erase(tOpStiuations.find(tBottom));
                 }
             } else {
+
+                /*
+                 * Leave the top-layer situation triggered and its bottom-layer evidences triggerable,
+                 * if some bottom-layer evidence has not been triggered
+                 */
                 vector<long> tBottoms = sg.getOperationalSitutions(triggerable);
                 for (auto tBottom : tBottoms) {
-                    // bottom instance
                     SituationInstance &bi = instanceMap[tBottom];
+                    // leave the bottom-layer evidence triggered
                     if (bi.state == SituationInstance::UNTRIGGERED
                             && bi.counter <= ti.counter) {
                         bi.state = SituationInstance::TRIGGERED;
@@ -122,8 +139,10 @@ vector<PhysicalOperation> SituationArranger::arrange(simtime_t current) {
 //    cout << "print triggerable operational stiuations: ";
 //    util::printSet(tOpStiuations);
 
+    /*
+     * 3. Pick triggerable operational situations if their triggering cycle has been reached and they are observable
+     */
     vector<long> bottoms = sg.getAllOperationalSitutions();
-
     for (auto bottom : bottoms) {
         SituationInstance &bi = instanceMap[bottom];
 
@@ -134,6 +153,10 @@ vector<PhysicalOperation> SituationArranger::arrange(simtime_t current) {
             s.id = bi.id;
             s.timestamp = current;
             s.toTrigger = false;
+
+            /*
+             * Reset the triggerable operational situation to untriggered for top-layer situation state reset condition check
+             */
             auto it = tOpStiuations.find(bi.id);
             if (it != tOpStiuations.end()) {
                 if (bi.state == SituationInstance::TRIGGERED) {
