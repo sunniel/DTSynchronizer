@@ -17,26 +17,23 @@
 #define OBJECTS_BNINFERENCEENGINE_H_
 
 #include <map>
+#include <set>
 #include <vector>
+#include <tuple>
 #include <utility>
 #include <bitset>
-#include <dlib/bayes_utils.h>
-#include <dlib/graph_utils.h>
-#include <dlib/graph.h>
-#include <dlib/directed_graph.h>
 #include <omnetpp.h>
 #include "SituationInstance.h"
 #include "SituationGraph.h"
 #include "DirectedGraph.h"
+#include "BayesianNetwork.h"
 
 using namespace std;
-using namespace dlib;
-using namespace bayes_node_utils;
 using namespace omnetpp;
 
 class BNInferenceEngine {
 private:
-    directed_graph<bayes_node>::kernel_1a_c BNet;
+    BayesianNetwork BNet;
 //    void constructCPT();
 //    void subgraphExtraction();
 public:

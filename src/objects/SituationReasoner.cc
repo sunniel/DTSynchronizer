@@ -30,8 +30,8 @@ std::set<long> SituationReasoner::reason(std::set<long> triggered,
         simtime_t current) {
     std::set<long> tOperational;
 
-//    cout << "show triggered: ";
-//    util::printSet(triggered);
+    cout << "show triggered: ";
+    util::printSet(triggered);
 
     int numOfLayers = sg.modelHeight();
 
@@ -91,9 +91,14 @@ std::set<long> SituationReasoner::reason(std::set<long> triggered,
                 std::vector<long> causes = sg.getNode(node).causes;
                 for (auto cause : causes) {
                     SituationInstance &ci = instanceMap[cause];
-                    if (ci.state != SituationInstance::TRIGGERED) {
+                    // use trigger counter to check cause state
+                    if (ci.counter < si.counter) {
                         ci.state = SituationInstance::UNDETERMINED;
-//                        cout << "situation " << ci.id << " is undetermined" << endl;
+
+                        cout << "=============" << endl;
+                        cout << "situation " << ci.id << " is undetermined"
+                                << endl;
+                        cout << "=============" << endl;
                     }
                 }
             }
@@ -119,11 +124,13 @@ std::set<long> SituationReasoner::reason(std::set<long> triggered,
     }
 
     /*
-     * 6. reset transient situations
+     * 6. reset transient situations, durable situations also need to implement state reset (TODO: state reset scheduler)
      */
     for (auto &si : instanceMap) {
         if (si.second.next_start + si.second.duration <= current) {
             si.second.state = SituationInstance::UNTRIGGERED;
+
+            cout << "reset node " << si.first << endl;
         }
     }
 

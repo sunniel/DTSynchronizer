@@ -38,6 +38,7 @@ OBJS = \
     $O/hosts/EventSource.o \
     $O/hosts/Simulator.o \
     $O/hosts/Synchronizer.o \
+    $O/objects/BayesianNetwork.o \
     $O/objects/BNInferenceEngine.o \
     $O/objects/DirectedGraph.o \
     $O/objects/Operation.o \

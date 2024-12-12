@@ -313,6 +313,10 @@ void SituationGraph::print() {
 
 SituationGraph::~SituationGraph() {
     // TODO why cannot release pointer here?
-//    delete ri;
+//    if(ri){
+//        ri->clear();
+//        delete ri;
+//        ri = NULL;
+//    }
 }
 
