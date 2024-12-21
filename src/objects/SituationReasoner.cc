@@ -126,13 +126,7 @@ std::set<long> SituationReasoner::reason(std::set<long> triggered,
     /*
      * 6. reset transient situations, durable situations also need to implement state reset (TODO: state reset scheduler)
      */
-    for (auto &si : instanceMap) {
-        if (si.second.next_start + si.second.duration <= current) {
-            si.second.state = SituationInstance::UNTRIGGERED;
-
-            cout << "reset node " << si.first << endl;
-        }
-    }
+    checkState(current);
 
 //    cout << "print situation graph instance" << endl;
 //    print();
@@ -141,10 +135,15 @@ std::set<long> SituationReasoner::reason(std::set<long> triggered,
 }
 
 void SituationReasoner::checkState(simtime_t current) {
+
+//    cout << "check state at: " << current << endl;
+
     // reset transient situations
-    for (auto si : instanceMap) {
+    for (auto &si : instanceMap) {
         if (si.second.next_start + si.second.duration <= current) {
             si.second.state = SituationInstance::UNTRIGGERED;
+
+            cout << "reset node " << si.first << endl;
         }
     }
 }

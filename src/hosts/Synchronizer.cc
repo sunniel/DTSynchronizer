@@ -139,7 +139,7 @@ void Synchronizer::handleMessage(cMessage *msg) {
 
         scheduleAt(simTime() + slice_cycle, SETimeout);
     } else if (msg->isName(msg::SC_TIMEOUT)) {
-        sr.checkState(SimTime());
+        sr.checkState(simTime());
         scheduleAt(simTime() + check_cycle, SCTimeout);
     }
 }
