@@ -124,7 +124,7 @@ std::set<long> SituationReasoner::reason(std::set<long> triggered,
     }
 
     /*
-     * 6. reset transient situations, durable situations also need to implement state reset (TODO: state reset scheduler)
+     * 6. reset transient situations, durable situations is cyclically reset from Synchronizer
      */
     checkState(current);
 
