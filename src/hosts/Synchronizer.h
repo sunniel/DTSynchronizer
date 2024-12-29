@@ -16,20 +16,26 @@
 #ifndef __DTSYNCHRONIZER_SYNCHRONIZER_H_
 #define __DTSYNCHRONIZER_SYNCHRONIZER_H_
 
+#include <bits/stdc++.h>
+#include <cmath>
 #include <omnetpp.h>
+#include <nlohmann/json.hpp>
 
 #include "../objects/OperationGenerator.h"
 #include "../objects/SituationReasoner.h"
 #include "../transport/LatencyGenerator.h"
+#include "../common/Util.h"
 
 using namespace omnetpp;
 using namespace std;
+using json = nlohmann::json;
 
 /**
  * TODO - Generated class
  */
 class Synchronizer: public cSimpleModule {
 private:
+    int slice;
     // cycle to check durable situations
     simtime_t check_cycle;
     // time slice
@@ -44,13 +50,25 @@ private:
     LatencyGenerator lg;
     // <situation_ID, trigger_counter>, a buffer to cache observable situation triggering for implementing situation evolution scheduling
     std::map<long, int> bufferCounters;
+    // <situation_ID, trigger_coutner> for actual observable situations
+    std::map<long, int> actOBCounters;
+    // <observable_situation_ID, trigger_coutner> for simulated observable situations
+    std::map<long, int> simOBCounters;
+    // situation instance ID: <situation_id, counter>
+    typedef std::pair<long, int> si_id;
+    // cause counters of actual situations: <si_id, list_of_cause_counter>
+    std::map<si_id, std::map<long, int>> m_actCauseCounts;
+    // cause counters of simulated situations: <si_id, list_of_cause_counter>
+    std::map<si_id, std::map<long, int>> m_simCauseCounts;
 
 protected:
     virtual void initialize() override;
+    virtual void finish() override;
     virtual void handleMessage(cMessage *msg) override;
 
 public:
     Synchronizer();
+
     virtual ~Synchronizer();
 };
 

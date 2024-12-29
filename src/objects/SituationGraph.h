@@ -19,11 +19,14 @@
 #include <vector>
 #include <utility>
 #include <map>
+#include <fstream>
+#include <nlohmann/json.hpp>
 #include "SituationNode.h"
 #include "SituationRelation.h"
 #include "DirectedGraph.h"
 
 using namespace std;
+using json = nlohmann::json;
 
 // forward declaration
 class SituationEvolution;

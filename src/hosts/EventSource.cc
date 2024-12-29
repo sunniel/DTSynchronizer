@@ -14,9 +14,6 @@
 // 
 
 #include <algorithm>
-#include <boost/json.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
 #include "../common/Constants.h"
 #include "../objects/PhysicalOperation.h"
 #include "../messages/IoTEvent_m.h"
@@ -25,9 +22,13 @@
 Define_Module(EventSource);
 
 EventSource::EventSource(){
+    MAX_COUNT = 4;
+    toltalOperations = 0;
+    toltalSituations = 0;
     /*
      * Construct a situation graph and its instance
      */
+//    sa.initModel("../files/SG.json");
     sa.initModel("../files/SG2.json");
 
 //    sa.print();
@@ -45,28 +46,58 @@ EventSource::~EventSource(){
 }
 
 void EventSource::initialize() {
-
+    generatedOperations.setName("Actual Generated Operations");
+    generatedSituations.setName("Actual Generated Situations");
     // schedule IoT event generation
     scheduleAt(min_event_cycle, EGTimeout);
 }
 
-void EventSource::handleMessage(cMessage *msg) {
-    if (msg->isName(msg::EG_TIMEOUT)) {
+void EventSource::finish() {
+    recordScalar("Actual Operations", toltalOperations);
+    recordScalar("Actual Situations", toltalSituations);
+    int consistency = sa.numOfConsistentOperation();
+    recordScalar("Actual Consistent Operations", consistency);
+}
 
-        vector<PhysicalOperation> operations = sa.arrange(simTime());
+void EventSource::handleMessage(cMessage *msg) {
+
+    if (msg->isName(msg::EG_TIMEOUT)) {
+        simtime_t current = simTime();
+        vector<PhysicalOperation> operations = sa.arrange(MAX_COUNT, current);
+        int operationCount = operations.size();
+        int situationCount = 0;
         for(auto operation : operations){
             IoTEvent* event = new IoTEvent(msg::IOT_EVENT);
 
             event->setEventID(operation.id);
             event->setToTrigger(operation.toTrigger);
             event->setTimestamp(operation.timestamp);
+            event->setType(operation.type);
+            event->setCounter(operation.counter);
+
+            // TODO: a cause can be an implicit cause, i.e., implied from higher-layer situation relation; Also, OR relation needs to be considered
+            vector<long> causes = sa.getModel().getNode(operation.id).causes;
+            map<long, int> causeCounts;
+            for(auto cause : causes){
+                causeCounts[cause] = sa.getInstance(cause).counter;
+            }
+            json j_causeCounts(causeCounts);
+            event->setCauseCounts(j_causeCounts.dump().c_str());
+
 
             simtime_t latency = lg.generator_latency();
             // send out the message
             sendDelayed(event, latency, "out");
 
+            if(operation.toTrigger){
+                situationCount++;
+            }
         }
 
+        generatedOperations.record(operationCount);
+        generatedSituations.record(situationCount);
+        toltalOperations += operationCount;
+        toltalSituations += situationCount;
         scheduleAt(simTime() + min_event_cycle, EGTimeout);
     }
 }

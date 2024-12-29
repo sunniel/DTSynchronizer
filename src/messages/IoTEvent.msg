@@ -13,11 +13,11 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-//
-// TODO generated message class
-//
 packet IoTEvent {
     long eventID;
     bool toTrigger;
 	simtime_t timestamp;
+	int counter;
+	string causeCounts;
+	short type;	
 }

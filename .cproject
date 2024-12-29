@@ -28,6 +28,7 @@
 									<listOptionValue builtIn="false" value="D:/Workspace/boost_1_86_0"/>
 									<listOptionValue builtIn="false" value="D:/Workspace/OMNeT++/omnetpp-6.03/DTSynchronizer/include"/>
 									<listOptionValue builtIn="false" value="D:/Workspace/dlib-19.24"/>
+									<listOptionValue builtIn="false" value="D:/Workspace/JSON_for_Modern_C++_3.7.3"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1979286837" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -37,6 +38,7 @@
 									<listOptionValue builtIn="false" value="D:/Workspace/boost_1_86_0"/>
 									<listOptionValue builtIn="false" value="D:/Workspace/OMNeT++/omnetpp-6.03/DTSynchronizer/include"/>
 									<listOptionValue builtIn="false" value="D:/Workspace/dlib-19.24"/>
+									<listOptionValue builtIn="false" value="D:/Workspace/JSON_for_Modern_C++_3.7.3"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.545556822" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
@@ -56,6 +58,7 @@
 									<listOptionValue builtIn="false" value="D:/Workspace/boost_1_86_0"/>
 									<listOptionValue builtIn="false" value="D:/Workspace/OMNeT++/omnetpp-6.03/DTSynchronizer/include"/>
 									<listOptionValue builtIn="false" value="D:/Workspace/dlib-19.24"/>
+									<listOptionValue builtIn="false" value="D:/Workspace/JSON_for_Modern_C++_3.7.3"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1919600559" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
@@ -96,6 +99,7 @@
 									<listOptionValue builtIn="false" value="D:/Workspace/boost_1_86_0"/>
 									<listOptionValue builtIn="false" value="D:/Workspace/OMNeT++/omnetpp-6.03/DTSynchronizer/include"/>
 									<listOptionValue builtIn="false" value="D:/Workspace/dlib-19.24"/>
+									<listOptionValue builtIn="false" value="D:/Workspace/JSON_for_Modern_C++_3.7.3"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.615710460" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -105,6 +109,7 @@
 									<listOptionValue builtIn="false" value="D:/Workspace/boost_1_86_0"/>
 									<listOptionValue builtIn="false" value="D:/Workspace/OMNeT++/omnetpp-6.03/DTSynchronizer/include"/>
 									<listOptionValue builtIn="false" value="D:/Workspace/dlib-19.24"/>
+									<listOptionValue builtIn="false" value="D:/Workspace/JSON_for_Modern_C++_3.7.3"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.594672587" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
@@ -124,6 +129,7 @@
 									<listOptionValue builtIn="false" value="D:/Workspace/boost_1_86_0"/>
 									<listOptionValue builtIn="false" value="D:/Workspace/OMNeT++/omnetpp-6.03/DTSynchronizer/include"/>
 									<listOptionValue builtIn="false" value="D:/Workspace/dlib-19.24"/>
+									<listOptionValue builtIn="false" value="D:/Workspace/JSON_for_Modern_C++_3.7.3"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.996901225" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>

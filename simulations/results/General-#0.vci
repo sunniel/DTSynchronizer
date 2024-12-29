@@ -1,0 +1,36 @@
+file 1865 1735469117                                            
+version 3
+run General-0-20241229-18:45:13-59660
+attr configname General
+attr datetime 20241229-18:45:13
+attr datetimef 20241229-184513
+attr experiment General
+attr inifile ../../simulations/omnetpp.ini
+attr iterationvars ""
+attr iterationvarsd ""
+attr iterationvarsf ""
+attr measurement ""
+attr network abstract.Simulation
+attr processid 59660
+attr repetition 0
+attr replication #0
+attr resultdir results
+attr runnumber 0
+attr seedset 0
+config network abstract.Simulation
+config scheduler-class cSequentialScheduler
+config simtime-resolution ms
+config sim-time-limit 20s
+config warmup-period 0s
+config num-rngs 1
+config rng-class cMersenneTwister
+config seed-0-mt 200
+config repeat 1
+config check-signals false
+config record-eventlog false
+
+vector 0 Simulation.event_source "Actual Generated Operations" ETV
+vector 1 Simulation.event_source "Actual Generated Situations" ETV
+0	907 478 1 195 0.5 20 40 0 6 94 368
+1	1385 478 1 195 0.5 20 40 0 4 32 74
+

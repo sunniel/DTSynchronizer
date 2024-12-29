@@ -15,16 +15,8 @@
 
 #include <omnetpp.h>
 #include <stack>
-#include <boost/json.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
-#include "boost/tuple/tuple.hpp"
-#include "boost/tuple/tuple_comparison.hpp"
-#include "boost/tuple/tuple_io.hpp"
 #include "SituationEvolution.h"
 #include "SituationGraph.h"
-
-namespace pt = boost::property_tree;
 
 SituationGraph::SituationGraph() {
     // TODO Auto-generated constructor stub
@@ -146,10 +138,9 @@ void SituationGraph::buildReachabilityMatrix(set<long>& vertices, set<edge_id>& 
 }
 
 void SituationGraph::loadModel(const std::string &filename, SituationEvolution* se) {
-    // Create a root
-    pt::ptree root;
-    // Load the json file in this ptree
-    pt::read_json(filename, root);
+    std::ifstream f(filename);
+    json data = json::parse(f);
+
     int index = 0;
 
     /*
@@ -161,27 +152,27 @@ void SituationGraph::loadModel(const std::string &filename, SituationEvolution* 
     /*
      * 1. Create situation graph (SG)
      */
-    for (pt::ptree::value_type & layer : root.get_child("layers")) {
+    for (const auto& layer : data["layers"].items()) {
 
         std::map<long, SituationNode> layerMap;
 
         /*
          * 1.1 Construct SG nodes and edges
          */
-        for (pt::ptree::value_type & node : layer.second) {
+        for (const auto& node : layer.value().items()) {
 
             SituationNode situation;
-            long id = node.second.get<long>("ID");
+            long id = node.value()["ID"].get<long>();
             situation.id = id;
             vertices.insert(id);
             situation.index = index;
             index++;
 
-            double duration = node.second.get<double>("Duration") / 1000.0;
-            SituationInstance::Type type = (SituationInstance::Type)node.second.get<short>("type");
-            if(node.second.get<string>("Cycle") != "null"){
+            double duration = node.value()["Duration"].get<double>() / 1000.0;
+            SituationInstance::Type type = (SituationInstance::Type)node.value()["type"].get<short>();
+            if(!node.value()["Cycle"].is_null()){
                 // cycle is in millisecond
-                double cycle = node.second.get<double>("Cycle") / 1000.0;
+                double cycle = node.value()["Cycle"].get<double>() / 1000.0;
                 se->addInstance(id, type, SimTime(duration), SimTime(cycle));
             }else{
                 se->addInstance(id, type, SimTime(duration));
@@ -190,16 +181,15 @@ void SituationGraph::loadModel(const std::string &filename, SituationEvolution* 
             /*
              * 1.1.1 build cause-consequence relations
              */
-            if (!node.second.get_child("Predecessors").empty()) {
-                for (pt::ptree::value_type &pre : node.second.get_child(
-                        "Predecessors")) {
+            if (!node.value()["Predecessors"].empty() && !node.value()["Predecessors"].is_null()) {
+                for (const auto& pre : node.value()["Predecessors"].items()) {
                     SituationRelation relation;
-                    long src = pre.second.get<long>("ID");
+                    long src = pre.value()["ID"].get<long>();
                     relation.src = src;
                     relation.dest = situation.id;
                     situation.causes.push_back(src);
                     relation.type = SituationRelation::H;
-                    short relationValue = pre.second.get<short>("Relation");
+                    short relationValue = pre.value()["Relation"].get<short>();
                     switch (relationValue) {
                     case 1:
                         relation.relation = SituationRelation::AND;
@@ -210,7 +200,7 @@ void SituationGraph::loadModel(const std::string &filename, SituationEvolution* 
                     default:
                         relation.relation = SituationRelation::SOLE;
                     }
-                    relation.weight = pre.second.get<double>("Weight-x");
+                    relation.weight = pre.value()["Weight-x"].get<double>();
                     edge_id eid;
                     eid.first = src;
                     eid.second = relation.dest;
@@ -222,16 +212,15 @@ void SituationGraph::loadModel(const std::string &filename, SituationEvolution* 
             /*
              * 1.1.2 build parent-child relations
              */
-            if (!node.second.get_child("Children").empty()) {
-                for (pt::ptree::value_type & chd : node.second.get_child(
-                        "Children")) {
+            if (!node.value()["Children"].empty()&& !node.value()["Children"].is_null()) {
+                for (const auto& chd : node.value()["Children"].items()) {
                     SituationRelation relation;
-                    long src = chd.second.get<long>("ID");
+                    long src = chd.value()["ID"].get<long>();
                     relation.src = src;
                     relation.dest = situation.id;
-                    situation.evidences.push_back(chd.second.get<long>("ID"));
+                    situation.evidences.push_back(chd.value()["ID"].get<long>());
                     relation.type = SituationRelation::V;
-                    short relationValue = chd.second.get<short>("Relation");
+                    short relationValue = chd.value()["Relation"].get<short>();
                     switch (relationValue) {
                     case 1:
                         relation.relation = SituationRelation::AND;
@@ -242,7 +231,7 @@ void SituationGraph::loadModel(const std::string &filename, SituationEvolution* 
                     default:
                         relation.relation = SituationRelation::SOLE;
                     }
-                    relation.weight = chd.second.get<double>("Weight-y");
+                    relation.weight = chd.value()["Weight-y"].get<double>();
                     edge_id eid;
                     eid.first = src;
                     eid.second = relation.dest;
@@ -269,7 +258,7 @@ void SituationGraph::loadModel(const std::string &filename, SituationEvolution* 
                 graph.add_edge(p, node.id);
             }
         }
-//        graph.print();
+        graph.print();
         layers.push_back(graph);
 
         // Create mapping relations
@@ -280,13 +269,13 @@ void SituationGraph::loadModel(const std::string &filename, SituationEvolution* 
      * 2. Create reachability index
      */
     buildReachabilityMatrix(vertices, edges);
-//    cout << "print reachability matrix" << endl;
-//    for(auto row : *ri){
-//        for(auto col : row){
-//            cout << col << "  ";
-//        }
-//        cout << endl;
-//    }
+    cout << "print reachability matrix" << endl;
+    for(auto row : *ri){
+        for(auto col : row){
+            cout << col << "  ";
+        }
+        cout << endl;
+    }
 }
 
 DirectedGraph SituationGraph::getLayer (int index){
