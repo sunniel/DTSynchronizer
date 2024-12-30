@@ -258,7 +258,7 @@ void SituationGraph::loadModel(const std::string &filename, SituationEvolution* 
                 graph.add_edge(p, node.id);
             }
         }
-        graph.print();
+//        graph.print();
         layers.push_back(graph);
 
         // Create mapping relations
@@ -269,13 +269,13 @@ void SituationGraph::loadModel(const std::string &filename, SituationEvolution* 
      * 2. Create reachability index
      */
     buildReachabilityMatrix(vertices, edges);
-    cout << "print reachability matrix" << endl;
-    for(auto row : *ri){
-        for(auto col : row){
-            cout << col << "  ";
-        }
-        cout << endl;
-    }
+//    cout << "print reachability matrix" << endl;
+//    for(auto row : *ri){
+//        for(auto col : row){
+//            cout << col << "  ";
+//        }
+//        cout << endl;
+//    }
 }
 
 DirectedGraph SituationGraph::getLayer (int index){

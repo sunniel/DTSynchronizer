@@ -28,7 +28,7 @@ public:
         NORMAL, HIDDEN
     };
     enum State {
-        UNTRIGGERED, TRIGGERED, UNDETERMINED
+        UNTRIGGERED, TRIGGERING, UNDETERMINED, TRIGGERED
     };
     long id;
     int counter;

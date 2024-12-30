@@ -125,10 +125,15 @@ void BNInferenceEngine::reason(SituationGraph sg,
     for (auto instance : instanceMap) {
         long sid = instance.first;
         SituationInstance si = instance.second;
-        if (si.state != SituationInstance::UNDETERMINED) {
-            evidences[sid] = si.state;
+        if (si.state == SituationInstance::TRIGGERING || si.state == SituationInstance::TRIGGERED) {
+            // TODO here, instance alignment is included, correct and fully implemented?
+            evidences[sid] = 1;
 
-            cout << "set evidence of node " << sid << ": " << si.state << endl;
+            cout << "set evidence of node " << sid << ": " << 1 << endl;
+        }else if(si.state == SituationInstance::UNTRIGGERED){
+            evidences[sid] = 0;
+
+            cout << "set evidence of node " << sid << ": " << 0 << endl;
         }
     }
     BNet.buildSolution(evidences);
@@ -143,7 +148,7 @@ void BNInferenceEngine::reason(SituationGraph sg,
         double p_tr = BNet.getProbability(sid, 1);
         if(si.state == SituationInstance::UNDETERMINED){
             if (p_tr >= sg.situationMap[sid].threshold) {
-                si.state = SituationInstance::TRIGGERED;
+                si.state = SituationInstance::TRIGGERING;
                 si.counter++;
                 si.next_start = current;
             } else {

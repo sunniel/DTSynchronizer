@@ -59,7 +59,7 @@
 			},
 			{
 				"ID": 108,
-				"Predecessors": [{"ID": 104, "Weight-x": 0.5, "Relation": 1}, {"ID": 105, "Weight-x": 0.5, "Relation": 1}, {"ID": 106, "Weight-x": 0.5, "Relation": 1}],
+				"Predecessors": [{"ID": 104, "Weight-x": 0.5, "Relation": 1}, {"ID": 105, "Weight-x": 0.5, "Relation": 1}, {"ID": 107, "Weight-x": 0.5, "Relation": 1}],
 				"Children": null,
 				"Duration": 1000,
 				"Cycle": 5000,

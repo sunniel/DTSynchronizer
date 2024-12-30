@@ -45,7 +45,7 @@ std::set<long> SituationReasoner::reason(std::set<long> triggered,
         SituationInstance &instance = instanceMap[bottom];
         auto it = triggered.find(bottom);
         if (it != triggered.end()) {
-            instance.state = SituationInstance::TRIGGERED;
+            instance.state = SituationInstance::TRIGGERING;
             instance.counter++;
             instance.next_start = current;
         }
@@ -70,7 +70,7 @@ std::set<long> SituationReasoner::reason(std::set<long> triggered,
                 }
             }
             if (toTrigger) {
-                instance.state = SituationInstance::TRIGGERED;
+                instance.state = SituationInstance::TRIGGERING;
                 instance.counter++;
                 instance.next_start = current;
             }
@@ -80,13 +80,14 @@ std::set<long> SituationReasoner::reason(std::set<long> triggered,
     /*
      * 3. Compute UNDETERMINED state
      */
+    bool needRefinement = false;
     for (int i = 0; i < sg.modelHeight(); i++) {
         DirectedGraph g = sg.getLayer(i);
         std::vector<long> sortedNodes = g.topo_sort();
         std::reverse(sortedNodes.begin(), sortedNodes.end());
         for (auto node : sortedNodes) {
             SituationInstance &si = instanceMap[node];
-            if (si.state == SituationInstance::TRIGGERED
+            if (si.state == SituationInstance::TRIGGERING
                     || si.state == SituationInstance::UNDETERMINED) {
                 std::vector<long> causes = sg.getNode(node).causes;
                 for (auto cause : causes) {
@@ -94,11 +95,17 @@ std::set<long> SituationReasoner::reason(std::set<long> triggered,
                     // use trigger counter to check cause state
                     if (ci.counter < si.counter) {
                         ci.state = SituationInstance::UNDETERMINED;
+                        needRefinement = true;
 
                         cout << "=============" << endl;
                         cout << "situation " << ci.id << " is undetermined"
                                 << endl;
                         cout << "=============" << endl;
+                    }else{
+                        // TODO: instance alignment, here is only a partial implementation
+                        if(si.state == SituationInstance::TRIGGERING && ci.state == SituationInstance::UNTRIGGERED){
+                            ci.state = SituationInstance::TRIGGERED;
+                        }
                     }
                 }
             }
@@ -108,16 +115,18 @@ std::set<long> SituationReasoner::reason(std::set<long> triggered,
     /*
      * 4. Update refinement
      */
-    BNInferenceEngine engine;
-    engine.loadModel(sg);
-    engine.reason(sg, instanceMap, current);
+    if(needRefinement){
+        BNInferenceEngine engine;
+        engine.loadModel(sg);
+        engine.reason(sg, instanceMap, current);
+    }
 
     /*
      * 5. Get operational situations to return
      */
     for (auto bottom : bottoms) {
         SituationInstance &instance = instanceMap[bottom];
-        if (instance.state == SituationInstance::TRIGGERED
+        if (instance.state == SituationInstance::TRIGGERING
                 && instance.next_start == current) {
             tOperational.insert(instance.id);
         }
@@ -127,6 +136,15 @@ std::set<long> SituationReasoner::reason(std::set<long> triggered,
      * 6. reset transient situations, durable situations is cyclically reset from Synchronizer
      */
     checkState(current);
+
+    /*
+     * Reset triggered situation to untriggered state
+     */
+    for(auto& instance : instanceMap){
+        if(instance.second.state == SituationInstance::TRIGGERED){
+            instance.second.state = SituationInstance::UNTRIGGERED;
+        }
+    }
 
 //    cout << "print situation graph instance" << endl;
 //    print();
@@ -140,7 +158,8 @@ void SituationReasoner::checkState(simtime_t current) {
 
     // reset transient situations
     for (auto &si : instanceMap) {
-        if (si.second.next_start + si.second.duration <= current) {
+        if (si.second.next_start + si.second.duration <= current
+                && si.second.state == SituationInstance::TRIGGERING) {
             si.second.state = SituationInstance::UNTRIGGERED;
 
             cout << "reset node " << si.first << endl;

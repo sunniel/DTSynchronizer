@@ -56,6 +56,11 @@ int SituationEvolution::numOfConsistentOperation(){
             if(op2 != op && sg.isReachable(op2, op) && !sg.isReachable(op, op2)){
                 int causeCounter = instanceMap[op2].counter;
                 if(causeCounter < instanceMap[op].counter){
+
+//                    cout << "cause " << op2 << " counter " << causeCounter
+//                            << " less than situation " << op << " counter "
+//                            << instanceMap[op].counter << endl;
+
                     inconsistency = true;
                     break;
                 }

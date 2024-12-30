@@ -22,7 +22,7 @@
 Define_Module(EventSource);
 
 EventSource::EventSource(){
-    MAX_COUNT = 4;
+    MAX_TRIGGER_LIMIT = 4;
     toltalOperations = 0;
     toltalSituations = 0;
     /*
@@ -46,8 +46,6 @@ EventSource::~EventSource(){
 }
 
 void EventSource::initialize() {
-    generatedOperations.setName("Actual Generated Operations");
-    generatedSituations.setName("Actual Generated Situations");
     // schedule IoT event generation
     scheduleAt(min_event_cycle, EGTimeout);
 }
@@ -63,7 +61,7 @@ void EventSource::handleMessage(cMessage *msg) {
 
     if (msg->isName(msg::EG_TIMEOUT)) {
         simtime_t current = simTime();
-        vector<PhysicalOperation> operations = sa.arrange(MAX_COUNT, current);
+        vector<PhysicalOperation> operations = sa.arrange(MAX_TRIGGER_LIMIT, current);
         int operationCount = operations.size();
         int situationCount = 0;
         for(auto operation : operations){
@@ -94,8 +92,6 @@ void EventSource::handleMessage(cMessage *msg) {
             }
         }
 
-        generatedOperations.record(operationCount);
-        generatedSituations.record(situationCount);
         toltalOperations += operationCount;
         toltalSituations += situationCount;
         scheduleAt(simTime() + min_event_cycle, EGTimeout);

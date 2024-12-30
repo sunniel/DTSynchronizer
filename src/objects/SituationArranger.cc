@@ -20,7 +20,7 @@
 SituationArranger::SituationArranger() : SituationEvolution() {
 }
 
-vector<PhysicalOperation> SituationArranger::arrange(int max_count, simtime_t current) {
+vector<PhysicalOperation> SituationArranger::arrange(int max_trigger_limit, simtime_t current) {
 
     set<long> causes;
 
@@ -38,7 +38,7 @@ vector<PhysicalOperation> SituationArranger::arrange(int max_count, simtime_t cu
     for (auto node : topNodes) {
         SituationNode s = sg.getNode(node);
         SituationInstance &si = instanceMap[node];
-        if(si.counter < max_count){
+        if(si.counter < max_trigger_limit){
             if (s.causes.empty()) {
                         triggerables.insert(si.id);
                     } else {
@@ -72,14 +72,14 @@ vector<PhysicalOperation> SituationArranger::arrange(int max_count, simtime_t cu
 //                cout << "trigger situation " << ti.id << endl;
 
                 // trigger a top-layer situation, if it is not triggered
-                ti.state = SituationInstance::TRIGGERED;
+                ti.state = SituationInstance::TRIGGERING;
 
                 // trigger all related bottom-layer situations
                 vector<long> tBottoms = sg.getOperationalSitutions(triggerable);
                 for (auto tBottom : tBottoms) {
                     // bottom instance
                     SituationInstance &bi = instanceMap[tBottom];
-                    bi.state = SituationInstance::TRIGGERED;
+                    bi.state = SituationInstance::TRIGGERING;
                     tOpStiuations.insert(tBottom);
                 }
             }
@@ -87,7 +87,7 @@ vector<PhysicalOperation> SituationArranger::arrange(int max_count, simtime_t cu
 
             /*
              * Reset the top-layer situation's state, if all its bottom-layer evidences have been triggered
-             * and is situation life cycle has ended. Otherwise, the state of them are left unchanged
+             * and its situation life cycle has ended. Otherwise, the state of them are left unchanged
              */
 
             /*
@@ -100,7 +100,7 @@ vector<PhysicalOperation> SituationArranger::arrange(int max_count, simtime_t cu
             for (auto tBottom : tBottoms) {
                 // bi: bottom-layer instance
                 SituationInstance &bi = instanceMap[tBottom];
-                if (bi.state == SituationInstance::TRIGGERED
+                if (bi.state == SituationInstance::TRIGGERING
                         || bi.counter <= ti.counter) {
                     allTriggered = false;
                     break;
@@ -132,7 +132,7 @@ vector<PhysicalOperation> SituationArranger::arrange(int max_count, simtime_t cu
                     // leave the bottom-layer evidence triggered
                     if (bi.state == SituationInstance::UNTRIGGERED
                             && bi.counter <= ti.counter) {
-                        bi.state = SituationInstance::TRIGGERED;
+                        bi.state = SituationInstance::TRIGGERING;
                         tOpStiuations.insert(tBottom);
                     }
                 }
@@ -163,7 +163,7 @@ vector<PhysicalOperation> SituationArranger::arrange(int max_count, simtime_t cu
              */
             auto it = tOpStiuations.find(bi.id);
             if (it != tOpStiuations.end()) {
-                if (bi.state == SituationInstance::TRIGGERED) {
+                if (bi.state == SituationInstance::TRIGGERING) {
                     bi.counter++;
                     bi.state = SituationInstance::UNTRIGGERED;
                     s.toTrigger = true;
