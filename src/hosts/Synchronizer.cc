@@ -75,11 +75,13 @@ void Synchronizer::finish() {
             }
         }
         sum_sqr_diff += pow((so_count - ao_count), 2);
-        cout << "actual situation " << op << " count = " << ao_count << endl;
-        cout << "simulated situation " << op << " count = " << so_count << endl;
+//        cout << "actual situation " << op << " count = " << ao_count << endl;
+//        cout << "simulated situation " << op << " count = " << so_count << endl;
     }
-    double fidelity_occ = sqrt(sum_sqr_diff / (double)operations.size());
+    double fidelity_occ = 1- sqrt(sum_sqr_diff / (double)operations.size());
     recordScalar("Situation Occurrence Fidelity", fidelity_occ);
+
+    cout << endl;
 
     /*
      * Calculate situation alignment fidelity
@@ -88,6 +90,9 @@ void Synchronizer::finish() {
     for(auto simCauseCounts : m_simCauseCounts){
         long id = simCauseCounts.first.first;
         long count = simCauseCounts.first.second;
+//        cout << "alignment fidelity calculation on "
+//                << simCauseCounts.first.first << ", "
+//                << simCauseCounts.first.second << endl;
         si_id iid(id, count);
         std::vector<int> countDiff;
         for(auto causeCount : simCauseCounts.second){
@@ -95,13 +100,15 @@ void Synchronizer::finish() {
             int simCount = causeCount.second;
             int actCount = m_actCauseCounts[iid][cause];
             countDiff.push_back(abs(simCount - actCount));
+//            cout << "cause " << causeCount.first << " simulated count: " << simCount << endl;
+//            cout << "cause " << causeCount.first << " actual count: " << actCount << endl;
         }
         if(countDiff.size() > 0){
             int max_diff = *std::max_element(countDiff.begin(), countDiff.end());
             sum_sqr_max_diff += pow(max_diff, 2);
-            cout << "max situation (" << id << ", " << count << ") max misalignment = " << max_diff << endl;
+//            cout << "max situation (" << id << ", " << count << ") max misalignment = " << max_diff << endl;
         }else{
-            cout << "no cause of situation (" << id << ", " << count << ")" << endl;
+//            cout << "no cause of situation (" << id << ", " << count << ")" << endl;
         }
     }
     double fidelity_ali = sqrt(sum_sqr_max_diff / (double)m_simCauseCounts.size());

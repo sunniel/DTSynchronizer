@@ -24,10 +24,10 @@ SituationGraph::SituationGraph() {
 
 vector<long> SituationGraph::getAllOperationalSitutions() {
     vector<long> operational_situations;
-    DirectedGraph& bottom = layers[layers.size() - 1];
+    DirectedGraph &bottom = layers[layers.size() - 1];
     vector<long> bottom_nodes = bottom.topo_sort();
     for (auto node : bottom_nodes) {
-        SituationNode& operational_situation = situationMap[node];
+        SituationNode &operational_situation = situationMap[node];
         operational_situations.push_back(operational_situation.id);
     }
     return operational_situations;
@@ -36,7 +36,7 @@ vector<long> SituationGraph::getAllOperationalSitutions() {
 vector<long> SituationGraph::getOperationalSitutions(long topNodeId) {
     vector<long> operational_situations;
 
-    SituationNode& topNode = situationMap[topNodeId];
+    SituationNode &topNode = situationMap[topNodeId];
     stack<SituationNode> toChecks;
     toChecks.push(topNode);
     while (!toChecks.empty()) {
@@ -55,7 +55,7 @@ vector<long> SituationGraph::getOperationalSitutions(long topNodeId) {
     return operational_situations;
 }
 
-bool SituationGraph::isReachable(long src, long dest){
+bool SituationGraph::isReachable(long src, long dest) {
     int i = situationMap[src].index;
     int j = situationMap[dest].index;
     return ri->at(i)[j];
@@ -64,15 +64,17 @@ bool SituationGraph::isReachable(long src, long dest){
 /*
  * For square matrix only
  */
-vector<vector<bool>> boolMatrixPower(vector<vector<bool>> &mat, int n) {
+vector<vector<bool>> SituationGraph::_boolMatrixPower(vector<vector<bool>> &mat,
+        int n) {
     vector<vector<bool>> mat_n = mat;
+    int k = mat_n.size();
 
     for (int pow = 0; pow < n - 1; pow++) {
         vector<vector<bool>> temp = mat_n;
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
+        for (int i = 0; i < k; i++) {
+            for (int j = 0; j < k; j++) {
                 bool value = false;
-                for (int m = 0; m < n; m++) {
+                for (int m = 0; m < k; m++) {
                     value = value || (temp[i][m] && mat[m][j]);
                     if (value)
                         // early out
@@ -89,8 +91,8 @@ vector<vector<bool>> boolMatrixPower(vector<vector<bool>> &mat, int n) {
 /*
  * For square matrix only
  */
-void boolMatrixAdd(vector<vector<bool>>* result, vector<vector<bool>> &mat1,
-        vector<vector<bool>> &mat2) {
+void SituationGraph::_boolMatrixAdd(vector<vector<bool>> *result,
+        vector<vector<bool>> &mat1, vector<vector<bool>> &mat2) {
     int n = mat1.size();
 
     for (int i = 0; i < n; i++) {
@@ -100,7 +102,8 @@ void boolMatrixAdd(vector<vector<bool>>* result, vector<vector<bool>> &mat1,
     }
 }
 
-void SituationGraph::buildReachabilityMatrix(set<long>& vertices, set<edge_id>& edges) {
+void SituationGraph::_buildReachabilityMatrix(set<long> &vertices,
+        set<edge_id> &edges) {
     /*
      * initialize reachability matrix
      */
@@ -130,14 +133,14 @@ void SituationGraph::buildReachabilityMatrix(set<long>& vertices, set<edge_id>& 
      * build reachability matrix
      */
     for (int i = 1; i <= size; i++) {
-        vector<vector<bool>> adjMatrixPow = boolMatrixPower(adjMatrix, i);
+        vector<vector<bool>> adjMatrixPow = _boolMatrixPower(adjMatrix, i);
         vector<vector<bool>> temp = *ri;
-        boolMatrixAdd(ri, temp, adjMatrixPow);
-
+        _boolMatrixAdd(ri, temp, adjMatrixPow);
     }
 }
 
-void SituationGraph::loadModel(const std::string &filename, SituationEvolution* se) {
+void SituationGraph::loadModel(const std::string &filename,
+        SituationEvolution *se) {
     std::ifstream f(filename);
     json data = json::parse(f);
 
@@ -152,14 +155,14 @@ void SituationGraph::loadModel(const std::string &filename, SituationEvolution* 
     /*
      * 1. Create situation graph (SG)
      */
-    for (const auto& layer : data["layers"].items()) {
+    for (const auto &layer : data["layers"].items()) {
 
         std::map<long, SituationNode> layerMap;
 
         /*
          * 1.1 Construct SG nodes and edges
          */
-        for (const auto& node : layer.value().items()) {
+        for (const auto &node : layer.value().items()) {
 
             SituationNode situation;
             long id = node.value()["ID"].get<long>();
@@ -169,20 +172,22 @@ void SituationGraph::loadModel(const std::string &filename, SituationEvolution* 
             index++;
 
             double duration = node.value()["Duration"].get<double>() / 1000.0;
-            SituationInstance::Type type = (SituationInstance::Type)node.value()["type"].get<short>();
-            if(!node.value()["Cycle"].is_null()){
+            SituationInstance::Type type =
+                    (SituationInstance::Type) node.value()["type"].get<short>();
+            if (!node.value()["Cycle"].is_null()) {
                 // cycle is in millisecond
                 double cycle = node.value()["Cycle"].get<double>() / 1000.0;
                 se->addInstance(id, type, SimTime(duration), SimTime(cycle));
-            }else{
+            } else {
                 se->addInstance(id, type, SimTime(duration));
             }
 
             /*
              * 1.1.1 build cause-consequence relations
              */
-            if (!node.value()["Predecessors"].empty() && !node.value()["Predecessors"].is_null()) {
-                for (const auto& pre : node.value()["Predecessors"].items()) {
+            if (!node.value()["Predecessors"].empty()
+                    && !node.value()["Predecessors"].is_null()) {
+                for (const auto &pre : node.value()["Predecessors"].items()) {
                     SituationRelation relation;
                     long src = pre.value()["ID"].get<long>();
                     relation.src = src;
@@ -212,13 +217,15 @@ void SituationGraph::loadModel(const std::string &filename, SituationEvolution* 
             /*
              * 1.1.2 build parent-child relations
              */
-            if (!node.value()["Children"].empty()&& !node.value()["Children"].is_null()) {
-                for (const auto& chd : node.value()["Children"].items()) {
+            if (!node.value()["Children"].empty()
+                    && !node.value()["Children"].is_null()) {
+                for (const auto &chd : node.value()["Children"].items()) {
                     SituationRelation relation;
                     long src = chd.value()["ID"].get<long>();
                     relation.src = src;
                     relation.dest = situation.id;
-                    situation.evidences.push_back(chd.value()["ID"].get<long>());
+                    situation.evidences.push_back(
+                            chd.value()["ID"].get<long>());
                     relation.type = SituationRelation::V;
                     short relationValue = chd.value()["Relation"].get<short>();
                     switch (relationValue) {
@@ -253,7 +260,7 @@ void SituationGraph::loadModel(const std::string &filename, SituationEvolution* 
         DirectedGraph graph;
         for (auto m : layerMap) {
             graph.add_vertex(m.first);
-            SituationNode& node = m.second;
+            SituationNode &node = m.second;
             for (auto p : node.causes) {
                 graph.add_edge(p, node.id);
             }
@@ -268,7 +275,7 @@ void SituationGraph::loadModel(const std::string &filename, SituationEvolution* 
     /*
      * 2. Create reachability index
      */
-    buildReachabilityMatrix(vertices, edges);
+    _buildReachabilityMatrix(vertices, edges);
 //    cout << "print reachability matrix" << endl;
 //    for(auto row : *ri){
 //        for(auto col : row){
@@ -278,19 +285,19 @@ void SituationGraph::loadModel(const std::string &filename, SituationEvolution* 
 //    }
 }
 
-DirectedGraph SituationGraph::getLayer (int index){
+DirectedGraph SituationGraph::getLayer(int index) {
     return layers[index];
 }
 
-SituationNode SituationGraph::getNode(long id){
+SituationNode SituationGraph::getNode(long id) {
     return situationMap[id];
 }
 
-int SituationGraph::modelHeight(){
+int SituationGraph::modelHeight() {
     return layers.size();
 }
 
-int SituationGraph::numOfNodes(){
+int SituationGraph::numOfNodes() {
     return situationMap.size();
 }
 

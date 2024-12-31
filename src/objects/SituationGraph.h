@@ -42,14 +42,17 @@ public:
     // For a n-layer SG graph, layers[n-1] is the bottom layer and layers[0] is the top layer
     vector<DirectedGraph> layers;
 private:
-    void buildReachabilityMatrix(set<long>& vertices, set<edge_id>& edges);
+    vector<vector<bool>> _boolMatrixPower(vector<vector<bool>> &mat, int n);
+    void _boolMatrixAdd(vector<vector<bool>> *result,
+            vector<vector<bool>> &mat1, vector<vector<bool>> &mat2);
+    void _buildReachabilityMatrix(set<long> &vertices, set<edge_id> &edges);
 public:
     SituationGraph();
     vector<long> getAllOperationalSitutions();
     vector<long> getOperationalSitutions(long topNodeId);
     bool isReachable(long src, long dest);
-    void loadModel(const std::string &filename, SituationEvolution* arrangeer);
-    DirectedGraph getLayer (int index);
+    void loadModel(const std::string &filename, SituationEvolution *arrangeer);
+    DirectedGraph getLayer(int index);
     int modelHeight();
     SituationNode getNode(long id);
     int numOfNodes();
