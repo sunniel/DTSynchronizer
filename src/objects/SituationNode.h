@@ -17,6 +17,7 @@ public:
     long id;
     // index in a directed graph for reachability query
     int index;
+    // triggering state threshold
     double threshold;
     vector<long> causes;
     vector<long> evidences;

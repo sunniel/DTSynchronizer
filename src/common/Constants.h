@@ -34,6 +34,8 @@ namespace msg {
     extern const char* SE_TIMEOUT;
     // situation check timeout
     extern const char* SC_TIMEOUT;
+    // simulation timer start
+    extern const char* TIMER_START;
 }
 
 

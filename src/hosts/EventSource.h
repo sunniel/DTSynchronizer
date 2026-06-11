@@ -16,12 +16,16 @@
 #ifndef __DTSYNCHRONIZER_EVENTSOURCE_H_
 #define __DTSYNCHRONIZER_EVENTSOURCE_H_
 
-#include <omnetpp.h>
+#include <algorithm>
 #include <map>
 #include <vector>
+#include <omnetpp.h>
 #include <nlohmann/json.hpp>
 #include "../objects/SituationArranger.h"
+#include "../objects/PhysicalOperation.h"
 #include "../transport/LatencyGenerator.h"
+#include "../common/Constants.h"
+#include "../messages/IoTEvent_m.h"
 
 using namespace std;
 using namespace omnetpp;

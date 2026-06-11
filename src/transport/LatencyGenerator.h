@@ -27,6 +27,7 @@ private:
 public:
     LatencyGenerator();
     simtime_t generator_latency();
+    simtime_t generator_latency(double latency);
     virtual ~LatencyGenerator();
 };
 

@@ -17,11 +17,9 @@
 
 VirtualOperation::VirtualOperation() :
         Operation() {
-    // TODO Auto-generated constructor stub
-
 }
 
 VirtualOperation::~VirtualOperation() {
-    // TODO Auto-generated destructor stub
+
 }
 

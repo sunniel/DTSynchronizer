@@ -21,6 +21,6 @@ Operation::Operation() {
 }
 
 Operation::~Operation() {
-    // TODO Auto-generated destructor stub
+
 }
 

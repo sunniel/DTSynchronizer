@@ -22,6 +22,7 @@ simple Simulator
 {
         parameters:
         @display("i=block/sink"); // add a default icon
+        string situation_file_src;
     gates:
         input in;
         output out @directIn;

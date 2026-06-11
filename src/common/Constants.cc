@@ -20,3 +20,4 @@ const char* msg::SIM_EVENT = "SIM_EVENT";
 const char* msg::EG_TIMEOUT = "EG_TIMEOUT";
 const char* msg::SE_TIMEOUT = "SE_TIMEOUT";
 const char* msg::SC_TIMEOUT = "SC_TIMEOUT";
+const char* msg::TIMER_START = "TIMER_START";

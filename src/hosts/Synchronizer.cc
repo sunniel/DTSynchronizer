@@ -15,29 +15,28 @@
 
 #include "../common/Constants.h"
 #include "../common/Util.h"
+#include "../common/RandomClass.h"
 #include "../messages/IoTEvent_m.h"
 #include "../messages/SimEvent_m.h"
 #include "Synchronizer.h"
 
+// ================ TODO for testing purpose =====================
+#include "../objects/BNInferenceEngine.h"
+
 Define_Module(Synchronizer);
 
 Synchronizer::Synchronizer() {
-    /*
-     * Construct a situation graph and a situation inference engine
-     */
-//    sr.initModel("../files/SG.json");
-    sr.initModel("../files/SG2.json");
-    sog.setModel(sr.getModel());
-    sog.setModelInstance(&sr);
-
+    receivedOperations = 0;
+    receivedSituations = 0;
+    sentOperations = 0;
     slice = 0;
+
     // 500 ms
     check_cycle = 0.5;
-    // 3000 ms
-    slice_cycle = 3;
 
     SETimeout = new cMessage(msg::SE_TIMEOUT);
     SCTimeout = new cMessage(msg::SC_TIMEOUT);
+    timer = new cMessage(msg::TIMER_START);
 }
 
 Synchronizer::~Synchronizer() {
@@ -50,43 +49,171 @@ Synchronizer::~Synchronizer() {
 }
 
 void Synchronizer::initialize() {
+    /*
+     * Construct a situation graph and a situation inference engine
+     */
+    const char* SITUATION_MODEL_SYNC = par("situation_file_sync").stringValue();
+    sr.initModel(SITUATION_MODEL_SYNC);
+    const char* SITUATION_MODEL_SRC = par("situation_file_src").stringValue();
+    sr.initOriginalModel(SITUATION_MODEL_SRC);
+    // 3000 ms
+    slice_cycle = par("TIME_SLICE_LENGTH").doubleValue();
+    sog.setModel(sr.getModel());
+    sog.setModelInstance(&sr);
+
+    /*
+     * ================ testing situation graph =====================
+     */
+//    SituationGraph sg = sr.getModel();
+//    long src = 102;
+//    long dest = 104;
+//    bool reachable = sg.isCausallyReachable(src, dest);
+//    cout << endl << "from op " << src << " to op " << dest << " is reachable" << endl << endl;
+
+    /*
+     * ================ testing Bayesian network inference =====================
+     */
+//        sr.getInstance(100).state = SituationInstance::UNTRIGGERED;
+//        sr.getInstance(101).state = SituationInstance::UNTRIGGERED;
+//        sr.getInstance(102).state = SituationInstance::UNTRIGGERED;
+//        sr.getInstance(103).state = SituationInstance::UNDETERMINED;
+//        sr.getInstance(104).state = SituationInstance::UNDETERMINED;
+//        sr.getInstance(105).state = SituationInstance::TRIGGERED;
+//
+//        sr.getInstance(106).state = SituationInstance::UNDETERMINED;
+//        sr.getInstance(107).state = SituationInstance::UNTRIGGERED;
+//        sr.getInstance(108).state = SituationInstance::UNTRIGGERED;
+//        sr.getInstance(109).state = SituationInstance::UNDETERMINED;
+//        sr.getInstance(110).state = SituationInstance::UNTRIGGERED;
+//        sr.getInstance(111).state = SituationInstance::UNTRIGGERED;
+//        sr.getInstance(112).state = SituationInstance::UNTRIGGERED;
+//        sr.getInstance(113).state = SituationInstance::UNDETERMINED;
+//        sr.getInstance(114).state = SituationInstance::UNDETERMINED;
+//        sr.getInstance(115).state = SituationInstance::UNTRIGGERED;
+//
+//        sr.getInstance(116).state = SituationInstance::TRIGGERING;
+//
+//        sr.getInstance(117).state = SituationInstance::UNTRIGGERED;
+//        sr.getInstance(118).state = SituationInstance::UNDETERMINED;
+//        sr.getInstance(119).state = SituationInstance::UNTRIGGERED;
+
+//        sr.getInstance(201).state = SituationInstance::TRIGGERED;
+//        sr.getInstance(202).state = SituationInstance::TRIGGERING;
+//        sr.getInstance(203).state = SituationInstance::TRIGGERING;
+//        BNInferenceEngine engine;
+//        engine.reason(sr.getModel(), sr.instanceMap, simTime());
+
+        /*
+         * ================ testing Situation Inference =====================
+         */
+//        std::set<long> triggered;
+//        triggered.insert(100);
+//        triggered.insert(101);
+//    //    triggered.insert(102);
+//        triggered.insert(103);
+//        triggered.insert(115);
+//        triggered.insert(116);
+//    //    triggered.insert(104);
+//    //    triggered.insert(105);
+//    //    triggered.insert(106);
+//    //    triggered.insert(108);
+//        // create an instance with Triggered state for DR
+//    //    sr.getInstance(100).counter = 1;
+//        // create an instance with Triggered state for BR
+//    //    sr.getInstance(101).counter = 1;
+//    //    sr.getInstance(102).counter = 1;
+//    //    sr.getInstance(201).counter = 1;
+//    //    sr.getInstance(200).counter = 1;
+//        sr.getInstance(113).state = SituationInstance::UNDETERMINED;
+//        sr.getInstance(114).state = SituationInstance::UNDETERMINED;
+//        sr.reason(triggered, simTime());
+
     // schedule situation evolution
     scheduleAt(check_cycle, SCTimeout);
     scheduleAt(slice_cycle, SETimeout);
+    scheduleAt(0, timer);
 }
 
 void Synchronizer::finish() {
-    int consistency = sr.numOfConsistentOperation();
+    recordScalar("Received Operations", receivedOperations);
+    recordScalar("Received Operational Situations", receivedSituations);
+    int consistency = sr.numOfConsistentOperation(true);
     recordScalar("Recognized Consistent Operations", consistency);
+    int fullConsistent = sr.numOfConsistentOperation(false);
+    recordScalar("full Consistent Operations", fullConsistent);
+    recordScalar("Recognized Hidden Consistent Operations", fullConsistent - consistency);
 
     /*
-     * Calculate situation occurrence fidelity
-     * TODO: currently, simulated and actual observable situations are not fully aligned here
+     * Calculate recall & precision
      */
     std::vector<long> operations = sr.getModel().getAllOperationalSitutions();
-    double sum_sqr_diff = 0;
+    std::map<int, double> recalls;
+    std::map<int, double> precisions;
+    std::map<int, double> redundancies;
+    double recall = 0;
+    double precision = 0;
+    double redundancy = 0;
     for(auto op : operations){
         double so_count = (double)sr.getInstance(op).counter;
         double ao_count = 0;
         if(actOBCounters.count(op) > 0){
             ao_count = (double)actOBCounters[op];
-            if(actOBCounters[op] > slice){
-                ao_count = slice;
-            }
         }
-        sum_sqr_diff += pow((so_count - ao_count), 2);
-//        cout << "actual situation " << op << " count = " << ao_count << endl;
-//        cout << "simulated situation " << op << " count = " << so_count << endl;
-    }
-    double fidelity_occ = 1- sqrt(sum_sqr_diff / (double)operations.size());
-    recordScalar("Situation Occurrence Fidelity", fidelity_occ);
+        if(ao_count >= so_count){
+            recalls[op] = (double)so_count / ao_count;
+            precisions[op] = 1;
+            redundancies[op] = 0;
+        }else{
+            recalls[op] = 1;
+            precisions[op] = (double) ao_count / so_count;
+            redundancies[op] = ((double) so_count - ao_count)
+                    / ((double) so_count);
+        }
+        recall += recalls[op];
+        precision += precisions[op];
+        redundancy += redundancies[op];
 
+        cout << "accuracy of situation " << op << " = " << recalls[op] << endl;
+//        cout << "precision of situation " << op << " = " << precisions[op] << endl;
+        cout << "redundancy of operation " << op << " = " << redundancies[op] << endl;
+    }
+    recall = recall / operations.size();
+    precision = precision / operations.size();
+    redundancy = redundancy / operations.size();
+    recordScalar("Simulation accuracy", recall);
+    recordScalar("Operation redundancy", redundancy);
+    double F1 = 2.0 * (recall * precision) / (recall + precision);
+    recordScalar("Simulation F1 score", F1);
+    cout << endl;
+
+    /*
+     * Calculate situation occurrence fidelity
+     * TODO: currently, simulated and actual observable situations are not fully aligned here
+     */
+//    std::vector<long> operations = sr.getModel().getAllOperationalSitutions();
+    double sum_diff = 0;
+    double sum_situation = 0;
+    for(auto op : operations){
+        double so_count = (double)sr.getInstance(op).counter;
+        double ao_count = 0;
+        if(actOBCounters.count(op) > 0){
+            ao_count = (double)actOBCounters[op];
+        }
+        sum_diff += abs(so_count - ao_count) / ao_count;
+        sum_situation += ao_count;
+        cout << "actual situation " << op << " count = " << ao_count << endl;
+        cout << "simulated situation " << op << " count = " << so_count << endl;
+    }
+    cout << "sum_diff: " << sum_diff << ", sum_situation: " << sum_situation <<endl;
+    double fidelity_occ = 1- sum_diff / sum_situation;
+    recordScalar("Situation Occurrence Fidelity", fidelity_occ);
     cout << endl;
 
     /*
      * Calculate situation alignment fidelity
+     * Misalignment may be caused by higher cause frequency that put consequence and late cause into the same time slice
      */
-    double sum_sqr_max_diff = 0;
+//    double sum_sqr_max_diff = 0;
     for(auto simCauseCounts : m_simCauseCounts){
         long id = simCauseCounts.first.first;
         long count = simCauseCounts.first.second;
@@ -94,58 +221,81 @@ void Synchronizer::finish() {
 //                << simCauseCounts.first.first << ", "
 //                << simCauseCounts.first.second << endl;
         si_id iid(id, count);
-        std::vector<int> countDiff;
+//        std::vector<int> countDiff;
         for(auto causeCount : simCauseCounts.second){
             long cause = causeCount.first;
             int simCount = causeCount.second;
             int actCount = m_actCauseCounts[iid][cause];
-            countDiff.push_back(abs(simCount - actCount));
-//            cout << "cause " << causeCount.first << " simulated count: " << simCount << endl;
-//            cout << "cause " << causeCount.first << " actual count: " << actCount << endl;
+            int diff = simCount - actCount;
+            SAF[diff] = SAF[diff] + 1;
+            diff = simCount - count;
+            SAF2[diff] = SAF2[diff] + 1;
+
+//            countDiff.push_back(abs(simCount - actCount));
+//            cout << "situation " << id << " count " << count << " cause " << causeCount.first << " simulated count: " << simCount << endl;
+//            cout << "situation " << id << " count " << count << " cause " << causeCount.first << " actual count: " << actCount << endl;
         }
-        if(countDiff.size() > 0){
-            int max_diff = *std::max_element(countDiff.begin(), countDiff.end());
-            sum_sqr_max_diff += pow(max_diff, 2);
-//            cout << "max situation (" << id << ", " << count << ") max misalignment = " << max_diff << endl;
-        }else{
-//            cout << "no cause of situation (" << id << ", " << count << ")" << endl;
-        }
+
+//        if(countDiff.size() > 0){
+//            int max_diff = *std::max_element(countDiff.begin(), countDiff.end());
+//            sum_sqr_max_diff += pow(max_diff, 2);
+////            cout << "max situation (" << id << ", " << count << ") max misalignment = " << max_diff << endl;
+//        }else{
+////            cout << "no cause of situation (" << id << ", " << count << ")" << endl;
+//        }
     }
-    double fidelity_ali = sqrt(sum_sqr_max_diff / (double)m_simCauseCounts.size());
-    recordScalar("Situation Alignment Fidelity", fidelity_ali);
+
+    cout << endl << "print situation alignment fidelity: " << endl;
+    util::printMap(SAF);
+//    cout << endl << "print situation alignment fidelity 2: " << endl;
+//    util::printMap(SAF2);
+
+//    double fidelity_ali = 1 - sqrt(sum_sqr_max_diff / (double)m_simCauseCounts.size());
+//    recordScalar("Situation Alignment Fidelity", fidelity_ali);
+
+    recordScalar("Sent Operations", sentOperations);
+
+    // Record the ending time point
+    std::chrono::steady_clock::time_point end =
+            std::chrono::steady_clock::now();
+    // Calculate the duration,
+    // Use duration_cast to convert the difference to your desired unit (e.g., milliseconds)
+    std::chrono::milliseconds duration = std::chrono::duration_cast<
+            std::chrono::milliseconds>(end - start);
+    std::cout << "Execution time: " << duration.count() << " ms" << std::endl;
 }
 
 void Synchronizer::handleMessage(cMessage *msg) {
     if (msg->isName(msg::IOT_EVENT)) {
+        receivedOperations++;
         IoTEvent *event = check_and_cast<IoTEvent*>(msg);
+        long id = event->getEventID();
 
-        cout << "IoT event (" << event->getEventID() << "): toTrigger "
+        cout << "IoT event (" << id << "): toTrigger "
                 << event->getToTrigger() << ", counter " << event->getCounter()
                 << ", type " << event->getType() << ", cause counts "
                 << event->getCauseCounts() << ", timestamp "
                 << event->getTimestamp() << endl;
 
         /*
-         * By rights, all received IoT events needs to be cached for regression if needed.
+         * toTrigger: determines whether it is a situational event
+         * type: determines whether the event is observable or hidden
+         *
+         * By rights, all received IoT events need to be cached for regression if needed.
          * Here, temporarily only triggering events are maintained for simplicity.
          */
         if (event->getToTrigger() && event->getType() == SituationInstance::NORMAL) {
             sog.cacheEvent(event->getEventID(), event->getToTrigger(),
                     event->getTimestamp());
-
-            long id = event->getEventID();
-            if (bufferCounters.count(id)) {
-                bufferCounters[id]++;
-            } else {
-                bufferCounters[id] = 1;
-            }
+            bufferCounters[id]++;
         }
 
         /*
          * Update actual observable situation counter and cause counters for occurrence fidelity analysis
          */
         if (event->getToTrigger()){
-            long id = event->getEventID();
+            receivedSituations++;
+
             actOBCounters.count(id) > 0 ? actOBCounters[id]++ : (actOBCounters[id] = 1);
             json j_causeCounts = json::parse(string(event->getCauseCounts()));
             std::map<long, int> causeCounts = j_causeCounts.get<std::map<long, int>>();
@@ -166,8 +316,7 @@ void Synchronizer::handleMessage(cMessage *msg) {
 
         simtime_t current = simTime();
         slice = (int) (current / slice_cycle);
-        cout << endl << "current time slice: " << current << "(" << slice << ")"
-                << endl;
+        cout << endl << "current time: " << current << ", time slice: " <<  slice << endl;
 
         std::set<long> triggered;
 
@@ -211,7 +360,7 @@ void Synchronizer::handleMessage(cMessage *msg) {
              */
             std::vector<long> operations = sr.getModel().getAllOperationalSitutions();
             for(auto op2 : operations){
-                if(op2 != op && sr.getModel().isReachable(op2, op) && !sr.getModel().isReachable(op, op2)){
+                if (op2 != op && sr.getModel().isCausallyReachable(op2, op)) {
                     causeCounts[op2] = sr.getInstance(op2).counter;
                 }
             }
@@ -226,7 +375,7 @@ void Synchronizer::handleMessage(cMessage *msg) {
          * 3. Simulation operation generation
          */
         std::queue<std::vector<VirtualOperation>> opSets = sog.generateOperations(
-                tOperations);
+                tOperations, current);
         cout << "Operation sets are: " << endl;
         util::printComplexQueue(opSets);
 
@@ -240,17 +389,23 @@ void Synchronizer::handleMessage(cMessage *msg) {
                 event->setEventID(op.id);
                 event->setTimestamp(op.timestamp);
                 event->setCount(op.count);
-                simtime_t latency = lg.generator_latency();
+                simtime_t latency = lg.generator_latency(50);
                 // send out the message
                 sendDelayed(event, latency, "out");
+
+                sentOperations++;
             }
 
             opSets.pop();
         }
-
         scheduleAt(simTime() + slice_cycle, SETimeout);
     } else if (msg->isName(msg::SC_TIMEOUT)) {
         sr.checkState(simTime());
         scheduleAt(simTime() + check_cycle, SCTimeout);
+    } else if(msg->isName(msg::TIMER_START)){
+        // Record the starting time point
+        std::cout<< "Start timing the simulation" << std::endl;
+        start = std::chrono::steady_clock::now();
+        cancelAndDelete(timer);
     }
 }

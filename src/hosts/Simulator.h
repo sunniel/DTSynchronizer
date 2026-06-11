@@ -16,22 +16,24 @@
 #ifndef __DTSYNCHRONIZER_SIMULATOR_H_
 #define __DTSYNCHRONIZER_SIMULATOR_H_
 
-#include <omnetpp.h>
+#include "../objects/SituationRender.h"
 
 using namespace omnetpp;
 using namespace std;
 
-/**
- * TODO - Generated class
- */
-class Simulator : public cSimpleModule
-{
-  protected:
-    cOutVector SimulatedOperations;
+class Simulator: public cSimpleModule {
+private:
+    // <pair of instance counter, operation_index>
+    map<pair<long, int>, int> opArrivals;
+    int opIndex;
+    SituationRender sr;
+protected:
     int toltalOperations;
     virtual void initialize() override;
     virtual void finish() override;
     virtual void handleMessage(cMessage *msg) override;
+public:
+    Simulator();
 };
 
 #endif

@@ -34,6 +34,7 @@ private:
 
 public:
     DirectedGraph();
+    set<long> getVerexes();
     void add_vertex(long vertex);
     // Function to add an edge between vertices u and v of the graph
     void add_edge(long src, long dist);

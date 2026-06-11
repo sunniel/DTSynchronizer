@@ -23,23 +23,46 @@
 #include <utility>
 #include <bitset>
 #include <omnetpp.h>
+#include "../common/Util.h"
 #include "SituationInstance.h"
 #include "SituationGraph.h"
+#include "ExtendedGraph.h"
 #include "DirectedGraph.h"
 #include "BayesianNetwork.h"
 
-using namespace std;
+//using namespace std;
 using namespace omnetpp;
 
 class BNInferenceEngine {
 private:
+    long numOfNodes;
+    simtime_t current;
+    // extended situation graph, with intermediary nodes
+    ExtendedGraph esg;
+    // extended instanceMap with, intermediary nodes
+    std::map<long, SituationInstance> extInstanceMap;
     BayesianNetwork BNet;
-//    void constructCPT();
-//    void subgraphExtraction();
+    // record the node ID of a single-node Bayesian network
+    long single;
+private:
+    /*
+     * reasoning tasks
+     */
+    void _extendSG(SituationGraph sg);
+    void _buildCPT(ExtendedGraph esg);
+    void _updateState();
+
+    /*
+     * utility functions
+     */
+    void _addRelation(long src, long dest, double weight,
+            SituationRelation::Relation relation);
+    GeneralRelation _getRelation(long src, long dest);
 public:
-    void loadModel(SituationGraph sg);
-    void reason(SituationGraph sg,
-            std::map<int, SituationInstance> &instanceMap, simtime_t current);
+    // for predecessors relationship conversion and subgraph extraction with the d-separation algorithm
+    void reason(SituationGraph sg, std::map<long, SituationInstance> &instanceMap,
+            simtime_t current);
+
     BNInferenceEngine();
     virtual ~BNInferenceEngine();
 };

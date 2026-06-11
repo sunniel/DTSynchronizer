@@ -33,7 +33,8 @@ public:
     void setModel(SituationGraph sg);
     void setModelInstance(SituationEvolution* se);
     void cacheEvent(long eventId, bool toTrigger, simtime_t timestamp);
-    queue<vector<VirtualOperation>> generateOperations(set<long> cycleTriggered);
+    queue<vector<VirtualOperation>> generateOperations(set<long> cycleTriggered,
+            simtime_t current);
     virtual ~OperationGenerator();
 };
 

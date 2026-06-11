@@ -7,6 +7,7 @@
 				"Children": null,
 				"Duration": 3000,
 				"Cycle": 1000,
+				"Init": 1000,
 				"type": 0
 			},
 			{
@@ -15,6 +16,7 @@
 				"Children": null,
 				"Duration": 3000,
 				"Cycle": 1000,
+				"Init": 1000,
 				"type": 1
 			},
 			{
@@ -23,6 +25,7 @@
 				"Children": null,
 				"Duration": 1000,
 				"Cycle": 1500,
+				"Init": 1500,
 				"type": 1
 			},
 			{
@@ -39,6 +42,7 @@
 				"Children": null,
 				"Duration": 1000,
 				"Cycle": 4000,
+				"Init": 4000,
 				"type": 0
 			},			
 			{
@@ -47,6 +51,7 @@
 				"Children": null,
 				"Duration": 1000,
 				"Cycle": 1000,
+				"Init": 1000,
 				"type": 0
 			},
 			{
@@ -55,6 +60,7 @@
 				"Children": null,
 				"Duration": 1000,
 				"Cycle": 2500,
+				"Init": 2500,
 				"type": 0
 			},
 			{
@@ -63,6 +69,7 @@
 				"Children": null,
 				"Duration": 1000,
 				"Cycle": 5000,
+				"Init": 5000,
 				"type": 0
 			}
 		] 

@@ -9,10 +9,10 @@
 
 SituationNode::SituationNode() {
     id = -1;
-    threshold = 0;
+    threshold = 0.01;
 }
 
 SituationNode::~SituationNode() {
-    // TODO Auto-generated destructor stub
+
 }
 

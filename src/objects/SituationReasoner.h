@@ -22,10 +22,15 @@
 #include "BNInferenceEngine.h"
 
 using namespace omnetpp;
-using namespace std;
 
 class SituationReasoner: public SituationEvolution {
 private:
+    bool _determineState(long instanceId, SituationInstance::State newState, simtime_t current);
+    void _beliefPropagate(simtime_t current);
+    bool _backwardRetrospect(simtime_t current);
+    bool _downwardRetrospection(simtime_t current);
+    // only upward-propagate undetermined state and triggered state
+    bool _statePropagation();
 public:
     SituationReasoner();
     // return a set of triggered operational situations

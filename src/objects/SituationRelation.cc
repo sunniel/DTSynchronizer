@@ -16,6 +16,6 @@ SituationRelation::SituationRelation() {
 }
 
 SituationRelation::~SituationRelation() {
-    // TODO Auto-generated destructor stub
+
 }
 

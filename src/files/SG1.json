@@ -1,0 +1,89 @@
+{
+	"layers": [
+		[
+			{
+				"ID": 201,
+				"Predecessors": null,
+				"Children": [{"ID": 101, "Weight-y": 0.98, "Relation": 1},{"ID": 102, "Weight-y": 0.98, "Relation": 1}],
+				"Duration": 2000,
+				"Cycle": 5000,
+				"Init": 500,
+				"type": 0
+			},
+			{
+				"ID": 202,
+				"Predecessors": [{"ID": 201, "Weight-x": 0.98, "Relation": 0}],
+				"Children": [{"ID": 103, "Weight-y": 0.98, "Relation": 2},{"ID": 104, "Weight-y": 0.98, "Relation": 2}],
+				"Duration": 2000,
+				"Cycle": 5000,
+				"Init": 3000,
+				"type": 0
+			},
+			{
+				"ID": 203,
+				"Predecessors": [{"ID": 202, "Weight-x": 0.98, "Relation": 0}],
+				"Children": [{"ID": 105, "Weight-y": 0.98, "Relation": 1},{"ID": 106, "Weight-y": 0.98, "Relation": 1}],
+				"Duration": 2500,
+				"Cycle": 5000,
+				"Init": 5500,
+				"type": 0
+			}
+		],
+		[
+			{
+				"ID": 101,
+				"Predecessors": null,
+				"Children": null,
+				"Duration": 0,
+				"Cycle": 500,
+				"Init": 500,
+				"type": 0
+			},
+			{
+				"ID": 102,
+				"Predecessors": null,
+				"Children": null,
+				"Duration": 2000,
+				"Cycle": 5000,
+				"Init": 500,
+				"type": 0
+			},
+			{
+				"ID": 103,
+				"Predecessors": null,
+				"Children": null,
+				"Duration": 2000,
+				"Cycle": 5000,
+				"Init": 3000,
+				"type": 1
+			},
+			{
+				"ID": 104,
+				"Predecessors": null,
+				"Children": null,
+				"Duration": 1500,
+				"Cycle": 5500,
+				"Init": 3500,
+				"type": 1
+			},
+			{
+				"ID": 105,
+				"Predecessors": null,
+				"Children": null,
+				"Duration": 1500,
+				"Cycle": 6000,
+				"Init": 5500,
+				"type": 0
+			},
+			{
+				"ID": 106,
+				"Predecessors": [{"ID": 105, "Weight-x": 0.98, "Relation": 0}],
+				"Children": null,
+				"Duration": 1500,
+				"Cycle": 6000,
+				"Init": 6000,
+				"type": 0
+			}
+		] 
+	]
+}

@@ -39,15 +39,23 @@ public:
     simtime_t duration;
     simtime_t cycle;
     /*
-     * a multi-purpose variable:
-     * 1) next situation start time in Arranger, and
+     * A multi-purpose variable:
+     * 1) next situation/event start time in Arranger, and
      * 2) current situation start time in Reasoner.
+     * Particularly in Arranger, next_start times the next situation for top-layer situation,
+     * while it times the next event for bottom-layer situation.
      */
     simtime_t next_start;
 
+    // Current belief from evidence combination, 1 by default
+    double belief;
+
+    double latency;
 public:
-    SituationInstance();
-    SituationInstance(long id, Type type, simtime_t duration, simtime_t cycle);
+    // init: time of first triggering, i.e., value of next_start
+    SituationInstance(long id = -1, Type type = Type::NORMAL,
+            simtime_t duration = 0, simtime_t init = 0, simtime_t cycle = 0,
+            double belief = 1.0, double latency = 50.0);
     virtual ~SituationInstance();
 };
 
@@ -55,7 +63,7 @@ inline std::ostream& operator<<(std::ostream &os, const SituationInstance &si) {
     os << "situation (" << si.id << "): counter " << si.counter << ", type "
             << si.type << ", state " << si.state << ", duration " << si.duration
             << ", cycle " << si.cycle << ", next_start " << si.next_start
-            << endl;
+            << ", latency " << si.latency << endl;
     return os;
 }
 

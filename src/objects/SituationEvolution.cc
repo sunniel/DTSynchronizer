@@ -20,55 +20,62 @@ SituationEvolution::SituationEvolution() {
 }
 
 SituationEvolution::~SituationEvolution() {
-    // TODO Auto-generated destructor stub
+
 }
 
-void SituationEvolution::initModel(const char *model_path) {
-    sg.loadModel(model_path, this);
+void SituationEvolution::initModel(const char *model_path_sync) {
+    sg.loadModel(model_path_sync, this);
+    original = sg;
+}
+
+void SituationEvolution::initOriginalModel(const char *model_path_src){
+    original.loadModel(model_path_src, this);
 }
 
 void SituationEvolution::addInstance(long id, SituationInstance::Type type,
-        simtime_t duration, simtime_t cycle) {
-    SituationInstance si(id, type, duration, cycle);
+        simtime_t duration, simtime_t init, simtime_t cycle) {
+    SituationInstance si(id, type, duration, init, cycle);
     instanceMap[si.id] = si;
 }
 
-int SituationEvolution::numOfConsistentOperation(){
+int SituationEvolution::numOfConsistentOperation(bool type){
+
+//    cout << "in numOfConsistentOperation with type = " << type << endl;
+
     int consistency = 0;
-    vector<long> operations = sg.getAllOperationalSitutions();
+    vector<long> operations = original.getAllOperationalSitutions();
     for(auto op : operations){
-        bool inconsistency = false;
-        /*
-         * Check the explicit cause only
-         */
-//        vector<long> causes = sg.getNode(op).causes;
-//        for(auto cause : causes){
-//            int causeCounter = instanceMap[cause].counter;
-//            if(causeCounter < instanceMap[op].counter){
-//                inconsistency = true;
-//                break;
-//            }
-//        }
+
+        if(type && instanceMap[op].type == SituationInstance::HIDDEN){
+
+//            cout << "one hidden operation " << op << " in the numOfConsistentOperation method" << endl;
+
+            continue;
+        }
+
         /*
          * Check both explicit cause and implicit cause
          */
         for(auto op2 : operations){
-            if(op2 != op && sg.isReachable(op2, op) && !sg.isReachable(op, op2)){
+
+            if (op2 != op && original.isCausallyReachable(op2, op)) {
+
+//                cout << "from op2 " << op2 << " to op " << op << " is unilaterally reachable" << endl;
+
                 int causeCounter = instanceMap[op2].counter;
-                if(causeCounter < instanceMap[op].counter){
+                if(causeCounter >= instanceMap[op].counter){
 
 //                    cout << "cause " << op2 << " counter " << causeCounter
-//                            << " less than situation " << op << " counter "
+//                            << " more than situation " << op << " counter "
 //                            << instanceMap[op].counter << endl;
 
-                    inconsistency = true;
-                    break;
+                    consistency++;
+                }else{
+//                    cout << "An inconsistent cause found" << endl;
                 }
+            }else{
+//                cout << "from op2 " << op2 << " to op " << op << " is not unilaterally reachable" << endl;
             }
-        }
-
-        if(!inconsistency){
-            consistency++;
         }
     }
     return consistency;

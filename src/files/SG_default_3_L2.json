@@ -1,0 +1,503 @@
+{
+  "layers": [
+    [
+      {
+        "ID": 200,
+        "Predecessors": null,
+        "Children": [
+          {
+            "ID": 100,
+            "Weight-y": 0.9,
+            "Relation": 2
+          },
+          {
+            "ID": 101,
+            "Weight-y": 0.9,
+            "Relation": 2
+          },
+          {
+            "ID": 102,
+            "Weight-y": 0.9,
+            "Relation": 2
+          }
+        ],
+        "Duration": 2000,
+        "Cycle": 2000,
+		"Init": 2000,
+        "Threshold": 0.6,
+        "type": 0
+      },
+      {
+        "ID": 201,
+        "Predecessors": [
+          {
+            "ID": 200,
+            "Weight-x": 0.9,
+            "Relation": 0
+          }
+        ],
+        "Children":  [
+          {
+            "ID": 103,
+            "Weight-y": 0.85,
+            "Relation": 1
+          },
+          {
+            "ID": 104,
+            "Weight-y": 0.85,
+            "Relation": 1
+          }
+        ],
+        "Duration": 2000,
+        "Cycle": 500,
+		"Init": 500,
+        "Threshold": 0.48,
+        "type": 0
+      },
+      {
+        "ID": 202,
+        "Predecessors": null,
+        "Children": [
+          {
+            "ID": 105,
+            "Weight-y": 0.9,
+            "Relation": 2
+          },
+          {
+            "ID": 106,
+            "Weight-y": 0.9,
+            "Relation": 2
+          }
+        ],
+        "Duration": 2000,
+        "Cycle": 2000,
+		"Init": 2000,
+        "Threshold": 0.6,
+        "type": 0
+      },
+      {
+        "ID": 203,
+        "Predecessors": [
+          {
+            "ID": 202,
+            "Weight-x": 0.9,
+            "Relation": 0
+          }
+        ],
+        "Children": [
+          {
+            "ID": 107,
+            "Weight-y": 0.9,
+            "Relation": 2
+          },
+          {
+            "ID": 108,
+            "Weight-y": 0.9,
+            "Relation": 2
+          }
+        ],
+        "Duration": 1500,
+        "Cycle": 1500,
+		"Init": 1500,
+        "Threshold": 0.6,
+        "type": 0
+      },
+      {
+        "ID": 204,
+        "Predecessors": null,
+        "Children": [
+          {
+            "ID": 109,
+            "Weight-y": 0.9,
+            "Relation": 1
+          },
+          {
+            "ID": 110,
+            "Weight-y": 0.9,
+            "Relation": 1
+          }
+        ],
+        "Duration": 1500,
+        "Cycle": 2000,
+		"Init": 2000,
+        "Threshold": 0.48,
+        "type": 0
+      },
+      {
+        "ID": 205,
+        "Predecessors": [
+          {
+            "ID": 204,
+            "Weight-x": 0.9,
+            "Relation": 0
+          }
+        ],
+        "Children": [
+          {
+            "ID": 111,
+            "Weight-y": 0.85,
+            "Relation": 2
+          },
+          {
+            "ID": 112,
+            "Weight-y": 0.85,
+            "Relation": 2
+          }
+        ],
+        "Duration": 1000,
+        "Cycle": 2000,
+		"Init": 2000,
+        "Threshold": 0.56,
+        "type": 0
+      },
+      {
+        "ID": 206,
+        "Predecessors": [
+          {
+            "ID": 205,
+            "Weight-x": 0.9,
+            "Relation": 0
+          }
+        ],
+        "Children": [
+          {
+            "ID": 113,
+            "Weight-y": 0.9,
+            "Relation": 0
+          }		  
+        ],
+        "Duration": 500,
+        "Cycle": 1000,
+		"Init": 1000,
+        "Threshold": 0.6,
+        "type": 0
+      },
+      {
+        "ID": 207,
+        "Predecessors": null,
+        "Children": [
+          {
+            "ID": 114,
+            "Weight-y": 0.85,
+            "Relation": 1
+          },
+          {
+            "ID": 115,
+            "Weight-y": 0.85,
+            "Relation": 1
+          }
+        ],
+        "Duration": 1500,
+        "Cycle": 2000,
+		"Init": 2000,
+        "Threshold": 0.48,
+        "type": 0
+      },
+      {
+        "ID": 208,
+        "Predecessors":  [
+          {
+            "ID": 207,
+            "Weight-x": 0.9,
+            "Relation": 0
+          }
+        ],
+        "Children": [
+          {
+            "ID": 116,
+            "Weight-y": 0.9,
+            "Relation": 1
+          },
+          {
+            "ID": 117,
+            "Weight-y": 0.9,
+            "Relation": 1
+          }
+        ],
+        "Duration": 1000,
+        "Cycle": 2000,
+		"Init": 2000,
+        "Threshold": 0.54,
+        "type": 0
+      },
+      {
+        "ID": 209,
+        "Predecessors": [
+          {
+            "ID": 208,
+            "Weight-x": 0.8,
+            "Relation": 0
+          }
+        ],
+        "Children": [
+          {
+            "ID": 118,
+            "Weight-y": 0.9,
+            "Relation": 2
+          },
+          {
+            "ID": 119,
+            "Weight-y": 0.9,
+            "Relation": 2
+          }
+        ],
+        "Duration": 500,
+        "Cycle": 2000,
+		"Init": 2000,
+        "Threshold": 0.6,
+        "type": 0
+      }
+    ],
+    [
+      {
+        "ID": 100,
+        "Predecessors": null,
+        "Children": null,
+        "Duration": 1000,
+        "Cycle": 2000,
+		"Init": 2000,
+        "Threshold": 0.66,
+        "BaseBelief": 1,
+        "type": 0
+      },
+      {
+        "ID": 101,
+        "Predecessors": null,
+        "Children": null,
+        "Duration": 500,
+        "Cycle": 1000,
+		"Init": 500,
+        "Threshold": 0.66,
+        "BaseBelief": 1,
+        "type": 0
+      },
+      {
+        "ID": 102,
+        "Predecessors": [
+          {
+            "ID": 101,
+            "Weight-x": 0.6,
+            "Relation": 0
+          }
+        ],
+        "Children": null,
+        "Duration": 500,
+        "Cycle": 1000,
+		"Init": 500,
+        "Threshold": 0.66,
+        "BaseBelief": 1,
+        "type": 0
+      },
+      {
+        "ID": 103,
+        "Predecessors": null,
+        "Children": null,
+        "Duration": 500,
+        "Cycle": 1000,
+		"Init": 1000,
+        "Threshold": 0.66,
+        "BaseBelief": 1,
+        "type": 0
+      },
+      {
+        "ID": 104,
+        "Predecessors": null,
+        "Children": null,
+        "Duration": 500,
+        "Cycle": 1000,
+		"Init": 1000,
+        "Threshold": 0.66,
+        "BaseBelief": 1,
+        "type": 0
+      },
+      {
+        "ID": 105,
+        "Predecessors": null,
+        "Children": null,
+        "Duration": 500,
+        "Cycle": 1000,
+		"Init": 2000,
+        "Threshold": 0.66,
+        "BaseBelief": 1,
+        "type": 0
+      },
+      {
+        "ID": 106,
+        "Predecessors": [
+          {
+            "ID": 105,
+            "Weight-x": 0.6,
+            "Relation": 0
+          }
+        ],
+        "Children": null,
+        "Duration": 500,
+        "Cycle": 1000,
+		"Init": 2000,
+        "Threshold": 0.66,
+        "BaseBelief": 1,
+        "type": 0
+      },
+      {
+        "ID": 107,
+        "Predecessors": null,
+        "Children": null,
+        "Duration": 2000,
+        "Cycle": 1000,
+		"Init": 3000,
+        "Threshold": 0.66,
+        "BaseBelief": 1,
+        "type": 0
+      },
+      {
+        "ID": 108,
+        "Predecessors": null,
+        "Children": null,
+        "Duration": 3000,
+        "Cycle": 1000,
+		"Init": 3000,
+        "Threshold": 0.66,
+        "BaseBelief": 1,
+        "type": 0
+      },
+      {
+        "ID": 109,
+        "Predecessors": null,
+        "Children": null,
+        "Duration": 500,
+        "Cycle": 1000,
+		"Init": 6000,
+        "Threshold": 0.66,
+        "BaseBelief": 1,
+        "type": 0
+      },{
+        "ID": 110,
+        "Predecessors": [
+          {
+            "ID": 109,
+            "Weight-x": 0.65,
+            "Relation": 0
+          }
+        ],
+        "Children": null,
+        "Duration": 1000,
+        "Cycle": 1000,
+		"Init": 6000,
+        "Threshold": 0.66,
+        "BaseBelief": 1,
+        "type": 0
+      },
+      {
+        "ID": 111,
+        "Predecessors": null,
+        "Children": null,
+        "Duration": 1000,
+        "Cycle": 1000,
+		"Init": 6000,
+        "Threshold": 0.66,
+        "BaseBelief": 1,
+        "type": 0
+      },
+      {
+        "ID": 112,
+        "Predecessors": [
+          {
+            "ID": 111,
+            "Weight-x": 0.6,
+            "Relation": 0
+          }
+        ],
+        "Children": null,
+        "Duration": 3000,
+        "Cycle": 1000,
+		"Init": 6000,
+        "Threshold": 0.66,
+        "BaseBelief": 1,
+        "type": 0
+      },
+      {
+        "ID": 113,
+        "Predecessors": null,
+        "Children": null,
+        "Duration": 1000,
+        "Cycle": 1000,
+		"Init": 9000,
+        "Threshold": 0.66,
+        "BaseBelief": 1,
+        "type": 0
+      },
+      {
+        "ID": 114,
+        "Predecessors": null,
+        "Children": null,
+        "Duration": 1000,
+        "Cycle": 1000,
+		"Init": 9000,
+        "Threshold": 0.66,
+        "BaseBelief": 1,
+        "type": 0
+      },
+      {
+        "ID": 115,
+        "Predecessors": [
+          {
+            "ID": 114,
+            "Weight-x": 0.55,
+            "Relation": 0
+          }
+        ],
+        "Children": null,
+        "Duration": 2000,
+        "Cycle": 1000,
+		"Init": 9000,
+        "Threshold": 0.66,
+        "BaseBelief": 1,
+        "type": 0
+      },
+      {
+        "ID": 116,
+        "Predecessors": null,
+        "Children": null,
+        "Duration": 1000,
+        "Cycle": 1000,
+		"Init": 12000,
+        "Threshold": 0.66,
+        "BaseBelief": 1,
+        "type": 0
+      },
+      {
+        "ID": 117,
+        "Predecessors": null,
+        "Children": null,
+        "Duration": 1000,
+        "Cycle": 1000,
+		"Init": 12000,
+        "Threshold": 0.66,
+        "BaseBelief": 1,
+        "type": 0
+      },
+      {
+        "ID": 118,
+        "Predecessors": null,
+        "Children": null,
+        "Duration": 2000,
+        "Cycle": 1000,
+		"Init": 12000,
+        "Threshold": 0.66,
+        "BaseBelief": 1,
+        "type": 0
+      },
+      {
+        "ID": 119,
+        "Predecessors": null,
+        "Children": null,
+        "Duration": 2000,
+        "Cycle": 1000,
+		"Init": 12000,
+        "Threshold": 0.66,
+        "BaseBelief": 1,
+        "type": 0
+      }
+    ]
+  ]
+}

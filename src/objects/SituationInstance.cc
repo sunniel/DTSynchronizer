@@ -15,27 +15,20 @@
 
 #include "SituationInstance.h"
 
-SituationInstance::SituationInstance() {
-    id = -1;
-    counter = 0;
-    type = Type::NORMAL;
-    state = State::UNTRIGGERED;
-    cycle = 0;
-    next_start = 0;
-}
-
 SituationInstance::SituationInstance(long id, Type type, simtime_t duration,
-        simtime_t cycle) {
+        simtime_t init, simtime_t cycle, double belief, double latency) {
     this->id = id;
     this->counter = 0;
     this->type = type;
     this->state = State::UNTRIGGERED;
     this->duration = duration;
     this->cycle = cycle;
-    this->next_start = cycle;
+    this->next_start = init;
+    this->belief = belief;
+    this->latency = latency;
 }
 
 SituationInstance::~SituationInstance() {
-    // TODO Auto-generated destructor stub
+
 }
 

@@ -88,6 +88,19 @@ void printQueue(queue<T> q) {
 }
 
 /*
+ * Template function to print a deque
+ */
+template <typename T>
+void printDeque(deque<T> q) {
+    // Loop through the queue until it's empty
+    while (!q.empty()) {
+        cout << q.front() << "  ";
+        q.pop_front();
+    }
+    cout << endl;
+}
+
+/*
  * Template function to print a container of vector, set, or their variants
  */
 template <typename T>

@@ -13,29 +13,15 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#include <algorithm>
-#include "../common/Constants.h"
-#include "../objects/PhysicalOperation.h"
-#include "../messages/IoTEvent_m.h"
 #include "EventSource.h"
 
 Define_Module(EventSource);
 
 EventSource::EventSource(){
-    MAX_TRIGGER_LIMIT = 4;
     toltalOperations = 0;
     toltalSituations = 0;
-    /*
-     * Construct a situation graph and its instance
-     */
-//    sa.initModel("../files/SG.json");
-    sa.initModel("../files/SG2.json");
-
-//    sa.print();
-
     // 500 ms
     min_event_cycle = 0.5;
-
     EGTimeout = new cMessage(msg::EG_TIMEOUT);
 }
 
@@ -46,13 +32,21 @@ EventSource::~EventSource(){
 }
 
 void EventSource::initialize() {
+    MAX_TRIGGER_LIMIT = par("MAX_TRIGGER_LIMIT").intValue();
+    const char* SITUATION_MODEL = par("situation_file_src").stringValue();
+
+    /*
+     * Construct a situation graph and its instance
+     */
+    sa.initModel(SITUATION_MODEL);
+
     // schedule IoT event generation
     scheduleAt(min_event_cycle, EGTimeout);
 }
 
 void EventSource::finish() {
     recordScalar("Actual Operations", toltalOperations);
-    recordScalar("Actual Situations", toltalSituations);
+    recordScalar("Actual Operational Situations", toltalSituations);
     int consistency = sa.numOfConsistentOperation();
     recordScalar("Actual Consistent Operations", consistency);
 }
@@ -68,6 +62,7 @@ void EventSource::handleMessage(cMessage *msg) {
             IoTEvent* event = new IoTEvent(msg::IOT_EVENT);
             long opID = operation.id;
             event->setEventID(opID);
+            // toTrigger determines whether it is is a situational event
             event->setToTrigger(operation.toTrigger);
             event->setTimestamp(operation.timestamp);
             event->setType(operation.type);
@@ -88,21 +83,25 @@ void EventSource::handleMessage(cMessage *msg) {
                     sa.getModel().getAllOperationalSitutions();
             map<long, int> causeCounts;
             for (auto op2 : operations) {
-                if (op2 != opID && sa.getModel().isReachable(op2, opID)
-                        && !sa.getModel().isReachable(opID, op2)) {
+                if (op2 != opID
+                        && sa.getModel().isCausallyReachable(op2, opID)) {
                     causeCounts[op2] = sa.getInstance(op2).counter;
                 }
             }
             json j_causeCounts(causeCounts);
             event->setCauseCounts(j_causeCounts.dump().c_str());
 
-            simtime_t latency = lg.generator_latency();
+//            simtime_t latency = lg.generator_latency();
+            simtime_t latency = lg.generator_latency(operation.latency);
             // send out the message
             sendDelayed(event, latency, "out");
 
+            // toTrigger determines whether it is is a situational event
             if(operation.toTrigger){
                 situationCount++;
             }
+
+            cout << "send IoTEvent operation: " << operation << endl;
         }
 
         toltalOperations += operationCount;

@@ -32,14 +32,21 @@ void BayesianNetwork::BuildNetwork(long node_count,
     /*
      * Initialize Bayesian network
      */
-    cout << "number_of_nodes: " << node_count << endl;
+//    cout << "node_count: " << node_count << endl;
     BNet.set_number_of_nodes(node_count);
     for (auto edge : edges) {
         long src = edge.first;
         long dest = edge.second;
-        nodes.insert(src);
-        nodes.insert(dest);
-        BNet.add_edge(src, dest);
+        if(src != dest){
+            nodes.insert(src);
+            nodes.insert(dest);
+            BNet.add_edge(src, dest);
+        }else{
+            /*
+             * for single node network
+             */
+            nodes.insert(src);
+        }
     }
     /*
      * Inform all the nodes in the network that they are binary.
@@ -86,7 +93,6 @@ void BayesianNetwork::buildSolution(std::map<long, long> evidences) {
         set_node_value(BNet, id, state);
         set_node_as_evidence(BNet, id);
     }
-
     solution_with_evidence = new bayesian_network_join_tree(BNet, join_tree);
 }
 

@@ -18,13 +18,13 @@
 
 #include <bits/stdc++.h>
 #include <cmath>
+#include <chrono>
 #include <omnetpp.h>
 #include <nlohmann/json.hpp>
 
 #include "../objects/OperationGenerator.h"
 #include "../objects/SituationReasoner.h"
 #include "../transport/LatencyGenerator.h"
-#include "../common/Util.h"
 
 using namespace omnetpp;
 using namespace std;
@@ -50,7 +50,7 @@ private:
     LatencyGenerator lg;
     // <situation_ID, trigger_counter>, a buffer to cache observable situation triggering for implementing situation evolution scheduling
     std::map<long, int> bufferCounters;
-    // <situation_ID, trigger_coutner> for actual observable situations
+    // <situation_ID, trigger_counter> for actual observable situations
     std::map<long, int> actOBCounters;
     // <observable_situation_ID, trigger_coutner> for simulated observable situations
     std::map<long, int> simOBCounters;
@@ -61,6 +61,24 @@ private:
     // cause counters of simulated situations: <si_id, list_of_cause_counter>
     std::map<si_id, std::map<long, int>> m_simCauseCounts;
 
+    int receivedOperations;
+    int receivedSituations;
+    int sentOperations;
+
+    /*
+     * A map containing situation alignment fidelity (SAF) values
+     * Key: triggering cycle difference, calculated by cause_triggering_cycle - consequence_triggering_cycle for the same situation instance
+     * Value: the number of such triggering cycle difference
+     */
+    std::map<int, int> SAF;
+    std::map<int, int> SAF2;
+
+    /*
+     * For recording simulation length
+     */
+    std::chrono::steady_clock::time_point start;
+    // situation check timeout
+    cMessage* timer;
 protected:
     virtual void initialize() override;
     virtual void finish() override;

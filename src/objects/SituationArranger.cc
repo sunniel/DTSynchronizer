@@ -38,23 +38,23 @@ vector<PhysicalOperation> SituationArranger::arrange(int max_trigger_limit, simt
     for (auto node : topNodes) {
         SituationNode s = sg.getNode(node);
         SituationInstance &si = instanceMap[node];
-        if(si.counter < max_trigger_limit){
+        if (si.counter < max_trigger_limit) {
             if (s.causes.empty()) {
-                        triggerables.insert(si.id);
-                    } else {
-                        // a top-layer situation is to be triggered only if its trigger count is less than all causes
-                        bool toTrigger = true;
-                        for (auto cause : s.causes) {
-                            SituationInstance cs = instanceMap[cause];
-                            if (cs.counter <= si.counter) {
-                                toTrigger = false;
-                                break;
-                            }
-                        }
-                        if (toTrigger) {
-                            triggerables.insert(si.id);
-                        }
+                triggerables.insert(si.id);
+            } else {
+                // a top-layer situation is to be triggered only if its trigger count is less than all causes
+                bool toTrigger = true;
+                for (auto cause : s.causes) {
+                    SituationInstance cs = instanceMap[cause];
+                    if (cs.counter <= si.counter) {
+                        toTrigger = false;
+                        break;
                     }
+                }
+                if (toTrigger) {
+                    triggerables.insert(si.id);
+                }
+            }
         }
     }
 
@@ -67,9 +67,12 @@ vector<PhysicalOperation> SituationArranger::arrange(int max_trigger_limit, simt
         SituationInstance &ti = instanceMap[triggerable];
 
         if (ti.state == SituationInstance::UNTRIGGERED) {
+            // TODO add some randomness of situation triggering, is it needed?
             if (ti.next_start <= current && Random.NextDecimal() > 0) {
 
-//                cout << "trigger situation " << ti.id << endl;
+                cout << "trigger top-layer situation: " << ti.id
+                        << ", counter: " << ti.counter + 1 << ", next_start: "
+                        << ti.next_start << endl;
 
                 // trigger a top-layer situation, if it is not triggered
                 ti.state = SituationInstance::TRIGGERING;
@@ -92,7 +95,7 @@ vector<PhysicalOperation> SituationArranger::arrange(int max_trigger_limit, simt
 
             /*
              * Check whether all bottom situations have been triggered,
-             * which means they have experienced the transition from triggered
+             * which means they have experienced the transition from triggering
              * to untriggered.
              */
             bool allTriggered = true;
@@ -113,18 +116,30 @@ vector<PhysicalOperation> SituationArranger::arrange(int max_trigger_limit, simt
                  * Untrigger a top-layer situation and set its bottom-layer evidences non-triggerable
                  */
 //                cout << "reset situation " << ti.id << endl;
+
                 ti.state = SituationInstance::UNTRIGGERED;
                 ti.counter++;
                 ti.next_start = current + ti.cycle;
 
+//                cout << "ti [" << ti.id <<"] next_start: " << ti.next_start << endl;
+
                 for (auto tBottom : tBottoms) {
+
+//                    cout << "tBottom： " << tBottom << endl;
+//                    cout << "tOpStiuations： " << endl;
+//                    util::printSet(tOpStiuations);
+
                     tOpStiuations.erase(tOpStiuations.find(tBottom));
+//                    std::set<long>::iterator it = tOpStiuations.find(tBottom);
+//                    if( it != tOpStiuations.end()){
+//                        tOpStiuations.erase(it);
+//                    }
                 }
             } else {
 
                 /*
                  * Leave the top-layer situation triggered and its bottom-layer evidences triggerable,
-                 * if some bottom-layer evidence has not been triggered
+                 * if some bottom-layer evidences have not been triggered
                  */
                 vector<long> tBottoms = sg.getOperationalSitutions(triggerable);
                 for (auto tBottom : tBottoms) {
@@ -150,22 +165,24 @@ vector<PhysicalOperation> SituationArranger::arrange(int max_trigger_limit, simt
     for (auto bottom : bottoms) {
         SituationInstance &bi = instanceMap[bottom];
 
-        // cycle match check
-        simtime_t value = fmod(current, bi.cycle);
-        if (value == 0) {
+        /*
+         * bottom events include both situational events (toTrigger = true) and non-situational events (toTrigger = false)
+         */
+        if(bi.next_start == current){
             PhysicalOperation s;
             s.id = bi.id;
             s.timestamp = current;
             s.toTrigger = false;
+            s.latency = bi.latency;
 
             /*
-             * Reset the triggerable operational situation to untriggered for top-layer situation state reset condition check
+             * Reset triggerable operational situation state based on top-layer situation state reset condition
              */
-            auto it = tOpStiuations.find(bi.id);
-            if (it != tOpStiuations.end()) {
+            if (tOpStiuations.find(bi.id) != tOpStiuations.end()) {
                 if (bi.state == SituationInstance::TRIGGERING) {
                     bi.counter++;
                     bi.state = SituationInstance::UNTRIGGERED;
+                    // the operation is a situational event
                     s.toTrigger = true;
                 }
             }
@@ -173,10 +190,18 @@ vector<PhysicalOperation> SituationArranger::arrange(int max_trigger_limit, simt
             s.counter = bi.counter;
             s.type = bi.type;
 
-            // here, hidden situation are also transmitted, but not triggered, for result analysis
+            /*
+             * here, hidden situation are also transmitted, but not triggered, for result analysis
+             */
 //            if(bi.type != SituationInstance::HIDDEN){
             // only send observable operations
             operations.push_back(s);
+
+            /*
+             * Here, next_start times the next situation for top-layer situation,
+             * while it times the next event for bottom-layer situation.
+             */
+            bi.next_start = current + bi.duration + bi.cycle;
 //            }
         } else {
             bi.state = SituationInstance::UNTRIGGERED;

@@ -18,7 +18,15 @@
 #include "DirectedGraph.h"
 
 DirectedGraph::DirectedGraph() {
-    // TODO Auto-generated constructor stub
+
+}
+
+DirectedGraph::~DirectedGraph() {
+
+}
+
+set<long> DirectedGraph::getVerexes(){
+    return verList;
 }
 
 void DirectedGraph::add_vertex(long vertex) {
@@ -51,7 +59,6 @@ vector<long> DirectedGraph::topo_sort() {
     unordered_map<long, bool> visited;
     stack<long> st;
 
-    int V = adjList.size();
     for (auto adj : adjList) {
         long key = adj.first;
         if (!visited[key]) {
@@ -103,8 +110,3 @@ void DirectedGraph::print() {
         }
     }
 }
-
-DirectedGraph::~DirectedGraph() {
-    // TODO Auto-generated destructor stub
-}
-

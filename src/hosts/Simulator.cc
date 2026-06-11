@@ -19,21 +19,36 @@
 
 Define_Module(Simulator);
 
+Simulator::Simulator(){
+    toltalOperations = 0;
+    opIndex = 0;
+}
+
 void Simulator::initialize() {
-    SimulatedOperations.setName("Simulated Operations");
+    const char* SITUATION_MODEL_SYNC = par("situation_file_src").stringValue();
+    sr.initModel(SITUATION_MODEL_SYNC);
 }
 
 void Simulator::finish() {
     recordScalar("Simulated Operations", toltalOperations);
+    double consistency = sr.rateOfOpConsistency(opArrivals);
+    recordScalar("Rate of Operation Consistency", consistency);
 }
 
 void Simulator::handleMessage(cMessage *msg) {
     if (msg->isName(msg::SIM_EVENT)) {
         SimEvent *event = check_and_cast<SimEvent*>(msg);
+        long id = event->getEventID();
+        int count = event->getCount();
 
-        cout << "Simulation event (" << event->getEventID() << "): timestamp "
-                << event->getTimestamp() << " count " << event->getCount()
-                << endl;
+        pair<long, int> iid;
+        iid.first = id;
+        iid.second = count;
+        opArrivals[iid] = opIndex++;
+
+        cout << "Simulation event (" << id << "): timestamp "
+                << event->getTimestamp() << " count " << count << " index "
+                << opIndex << endl;
 
         toltalOperations++;
 

@@ -24,11 +24,13 @@ using namespace std;
 
 class PhysicalOperation: public Operation {
 public:
+    // determines whether it is is a situational event
     bool toTrigger;
     int counter;
     // <cause_id, cause count>
     map<long, int> causeCounts;
     SituationInstance::Type type;
+    double latency;
 protected:
     // print has to be a constant method, as the caller is a constant
     void print(ostream &os) const {

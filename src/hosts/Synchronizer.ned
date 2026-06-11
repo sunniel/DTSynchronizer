@@ -22,6 +22,9 @@ simple Synchronizer
 {
         parameters:
         @display("i=block/filter"); // add a default icon
+        double TIME_SLICE_LENGTH;
+        string situation_file_src;
+        string situation_file_sync;
     gates:
         input in;
         output out;

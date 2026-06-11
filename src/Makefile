@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for DTSynchronizer
 #
 # This file was generated with the command:
-#  opp_makemake -f --deep -IC:/omnetpp-6.0.3/include/omnetpp -ID:/Workspace/boost_1_86_0 -I../include -ID:/Workspace/dlib-19.24 -ID:/Workspace/JSON_for_Modern_C++_3.7.3 -LD:/Workspace/boost_1_86_0/libs
+#  opp_makemake -f --deep -IC:/omnetpp-6.0.3/include/omnetpp -I../include -ID:/boost_1_86_0 -ID:/dlib-19.24 -ID:/JSON_for_Modern_C++_3.7.3 -LD:/Workspace/boost_1_86_0/libs
 #
 
 # Name of target to be created (-o option)
@@ -19,7 +19,7 @@ USERIF_LIBS = $(ALL_ENV_LIBS) # that is, $(QTENV_LIBS) $(CMDENV_LIBS)
 #USERIF_LIBS = $(QTENV_LIBS)
 
 # C++ include paths (with -I)
-INCLUDE_PATH = -IC:/omnetpp-6.0.3/include/omnetpp -ID:/Workspace/boost_1_86_0 -I../include -ID:/Workspace/dlib-19.24 -ID:/Workspace/JSON_for_Modern_C++_3.7.3
+INCLUDE_PATH = -IC:/omnetpp-6.0.3/include/omnetpp -I../include -ID:/boost_1_86_0 -ID:/dlib-19.24 -ID:/JSON_for_Modern_C++_3.7.3
 
 # Additional object and library files to link with
 EXTRA_OBJS =
@@ -35,12 +35,16 @@ O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 # Object files for local .cc, .msg and .sm files
 OBJS = \
     $O/common/Constants.o \
+    $O/common/GlobalParameters.o \
     $O/hosts/EventSource.o \
     $O/hosts/Simulator.o \
     $O/hosts/Synchronizer.o \
     $O/objects/BayesianNetwork.o \
     $O/objects/BNInferenceEngine.o \
     $O/objects/DirectedGraph.o \
+    $O/objects/ExtendedGraph.o \
+    $O/objects/GeneralNode.o \
+    $O/objects/GeneralRelation.o \
     $O/objects/Operation.o \
     $O/objects/OperationalEvent.o \
     $O/objects/OperationGenerator.o \
@@ -52,6 +56,7 @@ OBJS = \
     $O/objects/SituationNode.o \
     $O/objects/SituationReasoner.o \
     $O/objects/SituationRelation.o \
+    $O/objects/SituationRender.o \
     $O/objects/VirtualOperation.o \
     $O/transport/LatencyGenerator.o \
     $O/messages/IoTEvent_m.o \

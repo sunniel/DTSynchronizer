@@ -22,6 +22,8 @@ simple EventSource
 {
         parameters:
         @display("i=block/source"); // add a default icon
+        int MAX_TRIGGER_LIMIT;
+        string situation_file_src;
     gates:
         input in @directIn;
         output out;    

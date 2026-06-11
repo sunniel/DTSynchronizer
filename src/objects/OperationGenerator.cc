@@ -37,14 +37,16 @@ void OperationGenerator::cacheEvent(long eventId, bool toTrigger,
     eventQueues[eventId].push_back(event);
 }
 
-queue<vector<VirtualOperation>> OperationGenerator::generateOperations(set<long> cycleTriggered) {
+queue<vector<VirtualOperation>> OperationGenerator::generateOperations(
+        set<long> cycleTriggered, simtime_t current) {
     /*
      * 1. Operation generation
      */
 
     /*
-     * 1.1. Event merge: here is only an over-simplified implementation,
-     * which may need to be implemented later (TODO)
+     * 1.1. Event merge: currently, only retrieve event from the head of each event queue.
+     * Later, s.v.-based event identification and event merge will be implemented (TODO)
+     *
      */
     map<long, OperationalEvent> mergedEvents;
     set<long> toRemoveFront;
@@ -59,8 +61,8 @@ queue<vector<VirtualOperation>> OperationGenerator::generateOperations(set<long>
 
     //    cout << "mergedEvents: ";
     //    util::printMap(mergedEvents);
-        cout << "print eventQueues: " << endl;
-        util::printComplexMap(eventQueues);
+//        cout << "print eventQueues: " << endl;
+//        util::printComplexMap(eventQueues);
 
     // remove the first event from cache, which is supposed to be transmitted to simulator
     for(auto a : toRemoveFront){
@@ -68,8 +70,24 @@ queue<vector<VirtualOperation>> OperationGenerator::generateOperations(set<long>
     }
 
     /*
-     * 1.2 TODO use cycleTriggered to generate events for sync failure, and add them to mergedEvents
+     * 1.2 use cycleTriggered to generate events for sync failure, and add them to mergedEvents,
+     * It is implemented in a simplified way that only event is generated without concerning state value.
+     * Later, the values of state variables will be generated through prediction (TODO)
+     *
      */
+    for (long id : cycleTriggered) {
+        if(mergedEvents.count(id) == 0){
+            SituationInstance si = se->getInstance(id);
+            OperationalEvent event;
+            event.id = si.id;
+            // TODO is it correct?
+            event.toTrigger = true;
+            event.timestamp = current;
+            // Add to merged events
+            mergedEvents[id] = event;
+        }
+    }
+
 
     /*
      * 1.3 Convert event to operation
@@ -103,13 +121,13 @@ queue<vector<VirtualOperation>> OperationGenerator::generateOperations(set<long>
              */
             // a flag indicating whether a situation has a cause in the same slice
             bool sameSlice = false;
-            for(auto& vo1 : topMap){
-                if(vo1.first != id && sg.isReachable(vo1.first, id) && !sg.isReachable(id, vo1.first)){
-                    SituationInstance& cInstance = se->getInstance(vo1.first);
+            for (auto &vo1 : topMap) {
+                if (vo1.first != id && sg.isCausallyReachable(vo1.first, id)) {
+                    SituationInstance &cInstance = se->getInstance(vo1.first);
                     /*
                      * check whether causes have been triggered in the last time slice
                      */
-                    if(cInstance.counter == instance.counter){
+                    if (cInstance.counter == instance.counter) {
                         newVoMap[vo1.first] = vo1.second;
                         sameSlice = true;
                         hasCause = true;
@@ -131,7 +149,7 @@ queue<vector<VirtualOperation>> OperationGenerator::generateOperations(set<long>
                 topMap.erase(vo.first);
             }
 
-            cout << "migrate operation set" << endl;
+//            cout << "migrate operation set" << endl;
         }
 
     }while(hasCause);
@@ -155,6 +173,6 @@ queue<vector<VirtualOperation>> OperationGenerator::generateOperations(set<long>
 }
 
 OperationGenerator::~OperationGenerator() {
-    // TODO Auto-generated destructor stub
+
 }
 

@@ -22,6 +22,6 @@ OperationalEvent::OperationalEvent() :
 }
 
 OperationalEvent::~OperationalEvent() {
-    // TODO Auto-generated destructor stub
+
 }
 

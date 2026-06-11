@@ -30,18 +30,26 @@ using namespace std;
 class SituationEvolution {
 protected:
     SituationGraph sg;
-    map<int, SituationInstance> instanceMap;
+    SituationGraph original;
+public:
+    map<long, SituationInstance> instanceMap;
 public:
     SituationEvolution();
-    void initModel(const char *model_path);
+    void initModel(const char *model_path_sync);
+    void initOriginalModel(const char *model_path_src);
     // return a list of operations as operational situations
     void addInstance(long id, SituationInstance::Type type =
-            SituationInstance::NORMAL, simtime_t duration = 0, simtime_t cycle =
-            0);
-    // An consistent operation is a triggered operation one that its cause has already been triggered
-    int numOfConsistentOperation();
+            SituationInstance::NORMAL, simtime_t duration = 0, simtime_t init =
+            0, simtime_t cycle = 0);
+    /*
+     * An consistent operation is a triggered operation one that its cause has already been triggered
+     * Type: true - if hiddens are not calculated, false - otherwise
+     */
+    int numOfConsistentOperation(bool type = false);
+    int numOfHiddenConsistentOperation();
     SituationInstance& getInstance(long id);
     SituationGraph& getModel();
+//    void setMode(SituationGraph sg);
     void print();
     virtual ~SituationEvolution();
 };

@@ -26,7 +26,7 @@ simtime_t LatencyGenerator::generator_latency(){
     // mu = 1 in the lognormal distribution of jitter
     double mu = 3;
     // sigma = 0.5 in the lognormal distribution of jitter
-    double sigma = 1;
+    double sigma = 0.5;
     // calculate one-way jitter
     double var_latency = lognormal(getEnvir()->getRNG(0), mu, sigma) / 2;
     // calculate the variable latency
@@ -34,6 +34,14 @@ simtime_t LatencyGenerator::generator_latency(){
     simtime_t delay = (min_latency + var_latency) / 1000;
 
 //    cout << "delay " << delay << ", var_latency " << var_latency << endl;
+
+    return delay;
+}
+
+simtime_t LatencyGenerator::generator_latency(double latency){
+    simtime_t delay(latency / 1000.0);
+
+//    cout << "assign latency " << delay << endl;
 
     return delay;
 }
